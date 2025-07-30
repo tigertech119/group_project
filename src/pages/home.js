@@ -27,7 +27,7 @@ const Home = () => {
           <h1 className="title">Streamline your hospital operations</h1>
           <p className="subtitle">Efficiently manage patients, staff, and appointments</p>
           <div className="button-group">
-            <button className="btn btn-primary">Login</button>
+            <button className="btn btn-primary" onClick={() => navigate('/login')}>Login</button>
             <button className="btn btn-secondary" onClick={() => navigate('/register')}>
               Register
             </button>
@@ -52,3 +52,6 @@ const Home = () => {
 };
 
 export default Home;
+/*
+
+*/
