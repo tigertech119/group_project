@@ -5,10 +5,9 @@ import { useNavigate } from 'react-router-dom';
 const Home = () => {
   const navigate = useNavigate(); // Hook for navigation
 
-  return (
+  return (/**/ 
     <div className="home-container">
-      {/* Header */}
-      <header className="header">
+      {/*  <header className="header">
         <div className="logo">
           <span role="img" aria-label="hospital">🏥</span> Apex Hospital
         </div>
@@ -20,7 +19,8 @@ const Home = () => {
         </nav>
         <div className="menu-icon">⋮</div>
       </header>
-
+ */}
+     
       {/* Main Content */}
       <main className="main-content">
         <div className="content-box">
