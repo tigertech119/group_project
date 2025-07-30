@@ -44,7 +44,9 @@ const Home = () => {
               <span className="icon">💼</span> Apply for Job
             </button>
           </div>
-          <button className="about-btn">About Hospital</button>
+          <button  className="about-btn" onClick={() => navigate('/about')} >
+              About Hospital
+             </button>
         </div>
       </main>
     </div>
