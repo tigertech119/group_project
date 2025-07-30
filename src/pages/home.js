@@ -1,7 +1,10 @@
 import React from 'react';
 import './styles.css';
+import { useNavigate } from 'react-router-dom';
 
 const Home = () => {
+  const navigate = useNavigate(); // Hook for navigation
+
   return (
     <div className="home-container">
       {/* Header */}
@@ -25,7 +28,9 @@ const Home = () => {
           <p className="subtitle">Efficiently manage patients, staff, and appointments</p>
           <div className="button-group">
             <button className="btn btn-primary">Login</button>
-            <button className="btn btn-secondary">Register</button>
+            <button className="btn btn-secondary" onClick={() => navigate('/register')}>
+              Register
+            </button>
             <button className="btn btn-tertiary">View Departments</button>
           </div>
           <div className="action-buttons">

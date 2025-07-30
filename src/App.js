@@ -1,12 +1,15 @@
-import logo from './logo.svg';
-import './App.css';
-import Home from './pages/home'; // Import the Home component
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Home from './pages/home';
+import Register from './pages/Register'; // Make sure this exists
 
 function App() {
   return (
-    <div className="App">
-      <Home />  
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/register" element={<Register />} />
+      </Routes>
+    </Router>
   );
 }
 
