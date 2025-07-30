@@ -1,17 +1,20 @@
 import React from 'react';
 import './styles.css';
+import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
+  const navigate = useNavigate();
+
   return (
     <div className="home-container">
-      {}
+      {/* Header */}
       <header className="header">
         <div className="logo">
           <span role="img" aria-label="hospital">🏥</span> Apex Hospital
         </div>
       </header>
 
-      {}
+      {/* Main Content */}
       <main className="main-content">
         <div className="content-box">
           <h1 className="title">Login</h1>
@@ -28,7 +31,22 @@ const Login = () => {
               <input type="password" placeholder="Enter your password" />
             </div>
 
-            <button className="btn btn-primary" type="button">Login</button>
+            <button 
+              className="btn btn-primary" 
+              type="button"
+              onClick={() => navigate('/patient-dashboard')} // Navigates directly to Patient Dashboard
+            >
+              Login
+            </button>
+
+            <button 
+              className="about-btn" 
+              style={{ marginLeft: '15px', background: 'linear-gradient(45deg, #6c757d, #5a6268)' }}
+              type="button"
+              onClick={() => navigate('/')}
+            >
+              Back
+            </button>
           </form>
 
           <p style={{ marginTop: '15px', color: '#555' }}>
@@ -41,6 +59,7 @@ const Login = () => {
 };
 
 export default Login;
+
 
 /*
 import React, { useState } from 'react';
