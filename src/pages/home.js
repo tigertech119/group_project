@@ -7,7 +7,7 @@ const Home = () => {
 
   return (/**/ 
     <div className="home-container">
-      {/*  <header className="header">
+      {/*  <header  className="header">
         <div className="logo">
           <span role="img" aria-label="hospital">🏥</span> Apex Hospital
         </div>
