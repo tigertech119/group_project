@@ -1,62 +1,49 @@
-import React from 'react';
-import './styles.css';
-import { useNavigate } from 'react-router-dom';
+import React from "react";
+import "./styles.css";
 
-const PatientDashboard = () => {
-  const navigate = useNavigate();
-
+export default function PatientDashboard({ user }) {
   return (
     <div className="home-container">
       {/* Header */}
       <header className="header">
-        <div className="logo">
-          <span role="img" aria-label="hospital">🏥</span> Patient Dashboard
-        </div>
-        <nav className="nav">
-          <a href="#" className="nav-link">Dashboard</a>
-          <a href="#" className="nav-link">My Profile</a>
-          <a href="#" className="nav-link">Settings</a>
-        </nav>
-        <button 
-          className="about-btn"
-          onClick={() => navigate('/')}
-          style={{ background: 'linear-gradient(45deg, #6c757d, #5a6268)' }}
-        >
-          Logout
-        </button>
+        <div className="logo">🏥 Patient Dashboard</div>
+        <button className="btn btn-tertiary">Logout</button>
       </header>
 
-      {/* Main Dashboard Content */}
+      {/* Welcome */}
       <main className="main-content">
-        <div className="content-box" style={{ textAlign: 'center' }}>
-          <h1 className="title">Welcome, Patient!</h1>
-          <p className="subtitle">Manage your healthcare easily.</p>
+        <div className="content-box">
+          <h1 className="title">Welcome, {user.profile?.fullName || "Patient"} 👋</h1>
+          <p className="subtitle">Manage your healthcare easily</p>
 
-          {/* Patient-Specific Actions */}
-          <div className="button-group" style={{ flexWrap: 'wrap', justifyContent: 'center' }}>
-            <button className="action-btn">
-              <span className="icon">📅</span> Book Appointment
-            </button>
-            <button className="action-btn">
-              <span className="icon">💊</span> View Prescriptions
-            </button>
-            <button className="action-btn">
-              <span className="icon">📄</span> Medical Reports
-            </button>
-            <button className="action-btn">
-              <span className="icon">🧾</span> Billing & Payments
-            </button>
-            <button className="action-btn">
-              <span className="icon">💬</span> Chat with Doctor
-            </button>
-            <button className="action-btn">
-              <span className="icon">⚙️</span> Account Settings
-            </button>
+          {/* Profile Card */}
+          <div className="profile-card">
+            <p><b>Name:</b> {user.profile?.fullName}</p>
+            <p><b>Age:</b> {user.profile?.dob ? new Date().getFullYear() - new Date(user.profile.dob).getFullYear() : "N/A"}</p>
+            <p><b>Gender:</b> {user.profile?.gender}</p>
+            <p><b>Phone:</b> {user.profile?.phone}</p>
+            <p><b>Email:</b> {user.email}</p>
+            <p><b>Address:</b> {user.profile?.address}</p>
+            <p><b>Blood Group:</b> {user.profile?.bloodGroup || "N/A"}</p>
+          </div>
+
+          {/* Actions */}
+          <div className="button-grid">
+            <button className="action-btn">📅 Book Appointment</button>
+            <button className="action-btn">💊 View Prescriptions</button>
+            <button className="action-btn">🧾 Medical Reports</button>
+            <button className="action-btn">💳 Billing & Payments</button>
+            <button className="action-btn">💬 Chat with Doctor</button>
+            <button className="action-btn">⚙️ Account Settings</button>
+          </div>
+
+          {/* Notifications */}
+          <div className="notifications">
+            <h3>🔔 Notifications</h3>
+            <p>No upcoming appointments</p>
           </div>
         </div>
       </main>
     </div>
   );
-};
-
-export default PatientDashboard;
+}
