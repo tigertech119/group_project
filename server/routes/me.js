@@ -5,27 +5,29 @@ const User = require("../models/User");
 
 const router = express.Router();
 
-// GET profile
+// GET current user
 router.get("/", requireAuth, async (req, res) => {
   const { passwordHash, ...safe } = req.user;
   res.json({ user: safe });
 });
 
-// PATCH profile
+// PATCH update profile
 router.patch("/", requireAuth, async (req, res) => {
-  const allowedProfileFields = ["fullName", "phone", "gender", "dob", "bloodGroup", "address"];
   const updates = {};
 
+  // Only allow safe profile updates
   if (req.body.profile) {
     updates.profile = {};
-    for (const k of allowedProfileFields) {
+    const allowed = ["fullName", "phone", "gender", "dob", "bloodGroup", "address"];
+    for (const k of allowed) {
       if (k in req.body.profile) updates.profile[k] = req.body.profile[k];
     }
   }
 
+  // If password change
   if (req.body.newPassword) {
     if (!req.body.currentPassword) {
-      return res.status(400).json({ error: "Current password is required" });
+      return res.status(400).json({ error: "Current password required" });
     }
     const fresh = await User.findById(req.user._id);
     const ok = await bcrypt.compare(req.body.currentPassword, fresh.passwordHash);
