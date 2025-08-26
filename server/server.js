@@ -8,10 +8,9 @@ const app = express();
 
 // middleware
 app.use(cors({
-  origin: process.env.CORS_ORIGIN,
+  origin: process.env.CORS_ORIGIN,   // must be http://localhost:3000 in .env
   credentials: true
 }));
-
 
 app.use(express.json());
 app.use(cookieParser());
