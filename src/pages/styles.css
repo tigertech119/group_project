@@ -233,3 +233,18 @@
   background: #f9f9f9;
   box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
 }
+
+
+@media (max-width: 768px) {
+  .button-group, .action-buttons, .button-grid {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 15px;
+  }
+
+  .btn, .action-btn {
+    width: 100%;
+    font-size: 1.2em;
+    padding: 15px;
+  }
+}
