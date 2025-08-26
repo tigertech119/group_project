@@ -10,6 +10,36 @@ const Navbar = () => {
 
   return (
     <nav className="navbar">
+      <div className="navbar-logo">🏥 Apex Hospital Management System</div>
+
+      <button className="navbar-toggle" onClick={toggleMenu}>
+        ☰
+      </button>
+      <ul className={`navbar-links ${isOpen ? 'active' : ''}`}>
+        
+        <li><Link to="/" className="nav-link">Home</Link></li>
+        <li><Link to="/login" className="nav-link">Login</Link></li>
+        <li><Link to="/register" className="nav-link">Register</Link></li>
+      </ul>
+    </nav>
+  );
+};
+
+export default Navbar;
+
+/*
+// src/components/Navbar.js
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import './Navbar.css';
+
+const Navbar = () => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const toggleMenu = () => setIsOpen(!isOpen);
+
+  return (
+    <nav className="navbar">
       <div className="navbar-logo">🏥 Apex Hospital</div>
       <button className="navbar-toggle" onClick={toggleMenu}>
         ☰
@@ -26,3 +56,5 @@ const Navbar = () => {
 };
 
 export default Navbar;
+
+*/
