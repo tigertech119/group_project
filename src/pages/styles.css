@@ -247,4 +247,39 @@
     font-size: 1.2em;
     padding: 15px;
   }
+
+  
+
+
+}
+
+ /* 🎨 Different colors for Patient Dashboard buttons */
+.button-grid .action-btn:nth-child(1) {
+  background: linear-gradient(45deg, #4CAF50, #66BB6A); /* Green */
+  color: white;
+}
+
+.button-grid .action-btn:nth-child(2) {
+  background: linear-gradient(45deg, #2196F3, #64B5F6); /* Blue */
+  color: white;
+}
+
+.button-grid .action-btn:nth-child(3) {
+  background: linear-gradient(45deg, #9C27B0, #BA68C8); /* Purple */
+  color: white;
+}
+
+.button-grid .action-btn:nth-child(4) {
+  background: linear-gradient(45deg, #FF9800, #FFB74D); /* Orange */
+  color: white;
+}
+
+.button-grid .action-btn:nth-child(5) {
+  background: linear-gradient(45deg, #E91E63, #F06292); /* Pink */
+  color: white;
+}
+
+.button-grid .action-btn:nth-child(6) {
+  background: linear-gradient(45deg, #607D8B, #90A4AE); /* Gray */
+  color: white;
 }
