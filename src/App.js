@@ -7,6 +7,7 @@ import Navbar from './components/Navbar';
 import DashboardRouter from "./components/DashboardRouter";  // ✅ correct file
 import Department from "./pages/Department";
 import ApplyJobs from "./pages/ApplyJobs";
+import ViewReports from './pages/ViewReports';
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
         <Route path="/about" element={<About />} />
         <Route path="/departments" element={<Department />} />
         <Route path="/apply-jobs" element={<ApplyJobs />} />
+        <Route path="/view-reports" element={<ViewReports />} />
 
         {/* Protected route → handles doctor/patient/staff */}
         <Route path="/dashboard" element={<DashboardRouter />} />
