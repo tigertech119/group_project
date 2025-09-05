@@ -1,10 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { getMe } from "../api/auth"; // fetches current logged in user
+import { getMe } from "../api/auth";
 import PatientDashboard from "../pages/PatientDashboard";
 import DoctorDashboard from "../pages/DoctorDashboard";
 import AdminDashboard from "../pages/AdminDashboard";
 import StaffDashboard from "../pages/StaffDashboard";
+import ApplicantDashboard from "../pages/ApplicantDashboard";
+import ITWorkerDashboard from "../pages/ITWorkerDashboard"; // NEW
+import NurseDashboard from "../pages/NurseDashboard"; // NEW
+import WardboyDashboard from "../pages/WardboyDashboard"; // NEW
 import { useNavigate } from "react-router-dom";
+
 const DashboardRouter = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -16,7 +21,7 @@ const DashboardRouter = () => {
       if (res.user) {
         setUser(res.user);
       } else {
-        navigate("/login"); // not logged in
+        navigate("/login");
       }
       setLoading(false);
     }
@@ -24,46 +29,108 @@ const DashboardRouter = () => {
   }, [navigate]);
 
   if (loading) return <p>Loading...</p>;
-
   if (!user) return null;
 
+  // ROLE-BASED DASHBOARD ROUTING
   if (user.role === "patient") return <PatientDashboard user={user} />;
   if (user.role === "doctor") return <DoctorDashboard user={user} />;
   if (user.role === "staff") return <StaffDashboard user={user} />;
+  if (user.role === "applicant") return <ApplicantDashboard user={user} />;
+  if (user.role === "admin") return <AdminDashboard user={user} />;
+  if (user.role === "it worker") return <ITWorkerDashboard user={user} />; // NEW
+  if (user.role === "nurse") return <NurseDashboard user={user} />; // NEW
+  if (user.role === "wardboy") return <WardboyDashboard user={user} />; // NEW
 
-  return <p>Unknown role</p>;
+  return <p>Unknown role: {user.role}</p>;
 };
 
 export default DashboardRouter;
+
 /*
 import React, { useEffect, useState } from "react";
-import { getMe } from "../api/auth"; // fetches current logged in user
+import { getMe } from "../api/auth";
+import PatientDashboard from "../pages/PatientDashboard";
+import DoctorDashboard from "../pages/DoctorDashboard";
+import AdminDashboard from "../pages/AdminDashboard"; // ✅ ADD THIS IMPORT
+import StaffDashboard from "../pages/StaffDashboard";
+import ApplicantDashboard from "../pages/ApplicantDashboard";
+import { useNavigate } from "react-router-dom";
+
+const DashboardRouter = () => {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    async function fetchUser() {
+      const res = await getMe();
+      if (res.user) {
+        setUser(res.user);
+      } else {
+        navigate("/login");
+      }
+      setLoading(false);
+    }
+    fetchUser();
+  }, [navigate]);
+
+  if (loading) return <p>Loading...</p>;
+  if (!user) return null;
+
+  // ✅ ROLE-BASED DASHBOARD ROUTING
+  if (user.role === "patient") return <PatientDashboard user={user} />;
+  if (user.role === "doctor") return <DoctorDashboard user={user} />;
+  if (user.role === "staff") return <StaffDashboard user={user} />;
+  if (user.role === "applicant") return <ApplicantDashboard user={user} />;
+  if (user.role === "admin") return <AdminDashboard user={user} />; // 👈 NEW LINE ADDED
+
+  return <p>Unknown role: {user.role}</p>;
+};
+
+export default DashboardRouter;
+*/
+
+/*
+import React, { useEffect, useState } from "react";
+import { getMe } from "../api/auth";
 import PatientDashboard from "../pages/PatientDashboard";
 import DoctorDashboard from "../pages/DoctorDashboard";
 import AdminDashboard from "../pages/AdminDashboard";
 import StaffDashboard from "../pages/StaffDashboard";
+import ApplicantDashboard from "../pages/ApplicantDashboard"; // ✅ ADD THIS IMPORT
+import { useNavigate } from "react-router-dom";
 
-export default function DashboardRouter() {
-  const [loading, setLoading] = useState(true);
+const DashboardRouter = () => {
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    (async () => {
+    async function fetchUser() {
       const res = await getMe();
-      setUser(res.user || null);
+      if (res.user) {
+        setUser(res.user);
+      } else {
+        navigate("/login");
+      }
       setLoading(false);
-    })();
-  }, []);
+    }
+    fetchUser();
+  }, [navigate]);
 
-  if (loading) return <p>Loading dashboard...</p>;
-  if (!user) return <p>❌ Not logged in. Please log in again.</p>;
+  if (loading) return <p>Loading...</p>;
+  if (!user) return null;
 
-  // Role-based dashboards
+  // ✅ ADD APPLICANT DASHBOARD ROUTING
   if (user.role === "patient") return <PatientDashboard user={user} />;
   if (user.role === "doctor") return <DoctorDashboard user={user} />;
-  if (user.role === "admin") return <AdminDashboard user={user} />;
   if (user.role === "staff") return <StaffDashboard user={user} />;
+  if (user.role === "applicant") return <ApplicantDashboard user={user} />; // 👈 NEW LINE
 
-  return <p>⚠️ Unknown role: {user.role}</p>;
-}
+  return <p>Unknown role: {user.role}</p>;
+};
+
+export default DashboardRouter;
+
 */
+
