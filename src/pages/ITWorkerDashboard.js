@@ -1,62 +1,68 @@
+
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./styles.css";
 
 export default function ITWorkerDashboard({ user }) {
+  const [showApprovalModal, setShowApprovalModal] = useState(false);
   const [applicants, setApplicants] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [showAdminPanel, setShowAdminPanel] = useState(false);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-
-  // Fetch all applicants (same as admin)
-  const fetchApplicants = async () => {
-    try {
-      const res = await fetch("http://localhost:5000/api/auth/applicants", {
-        credentials: "include",
-      });
-      
-      if (!res.ok) throw new Error("Failed to fetch applicants");
-      
-      const data = await res.json();
-      if (data.applicants) {
-        setApplicants(data.applicants);
-      }
-    } catch (err) {
-      console.error("Fetch error:", err);
-      alert("Error fetching applicants");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Approve or reject applicant (same as admin)
-  const handleApplication = async (applicantId, status) => {
-    try {
-      const res = await fetch("http://localhost:5000/api/auth/approve-applicant", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ applicantId, status }),
-      });
-
-      const data = await res.json();
-      if (res.ok) {
-        alert(`✅ Applicant ${status} successfully!`);
-        fetchApplicants();
-      } else {
-        alert("Failed: " + (data.error || "Unknown error"));
-      }
-    } catch (err) {
-      alert("Error processing application");
-    }
-  };
 
   const handleLogout = () => {
     alert("✅ Logged out successfully!");
     navigate("/");
   };
 
-  if (loading) return <div className="content-box"><p>Loading...</p></div>;
+  // Fetch applicants when modal opens
+  useEffect(() => {
+    if (showApprovalModal) {
+      fetchApplicants();
+    }
+  }, [showApprovalModal]);
+
+  // Simple fetch function
+  const fetchApplicants = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("http://localhost:5000/api/auth/applicants", {
+        credentials: "include",
+      });
+      
+      if (res.ok) {
+        const data = await res.json();
+        setApplicants(data.applicants || []);
+      } else {
+        alert("Failed to fetch applicants");
+      }
+    } catch (err) {
+      alert("Error connecting to server");
+    }
+    setLoading(false);
+  };
+
+  // Simple approve function
+  const handleApprove = async (applicantId, applicantName) => {
+    if (window.confirm(`Approve ${applicantName}?`)) {
+      try {
+        const res = await fetch("http://localhost:5000/api/auth/approve-applicant", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ applicantId, status: "approved" }),
+        });
+
+        if (res.ok) {
+          alert("✅ Applicant approved!");
+          fetchApplicants(); // Refresh list
+        } else {
+          alert("Approval failed");
+        }
+      } catch (err) {
+        alert("Error approving applicant");
+      }
+    }
+  };
 
   return (
     <div className="home-container">
@@ -72,7 +78,6 @@ export default function ITWorkerDashboard({ user }) {
           <h1 className="title">Welcome, {user.profile?.fullName} 👋</h1>
           <p className="subtitle">IT Support Specialist</p>
 
-          {/* Profile Card */}
           <div className="profile-card">
             <p><b>Name:</b> {user.profile?.fullName}</p>
             <p><b>Email:</b> {user.email}</p>
@@ -80,7 +85,6 @@ export default function ITWorkerDashboard({ user }) {
             <p><b>Department:</b> Information Technology</p>
           </div>
 
-          {/* IT Worker Actions */}
           <div className="button-grid">
             <button className="action-btn" onClick={() => alert("🖥️ System maintenance panel")}>
               🖥️ System Maintenance
@@ -88,85 +92,100 @@ export default function ITWorkerDashboard({ user }) {
             <button className="action-btn" onClick={() => alert("📊 Network monitoring")}>
               📊 Network Monitor
             </button>
-            <button className="action-btn" onClick={() => alert("🔒 Security settings")}>
-              🔒 Security Panel
-            </button>
             <button 
               className="action-btn" 
-              onClick={() => setShowAdminPanel(!showAdminPanel)}
+              onClick={() => setShowApprovalModal(true)}
               style={{ background: "linear-gradient(45deg, #9C27B0, #BA68C8)" }}
             >
-              👨‍💼 Admin Functions
+              👨‍💼 Approve Requests
             </button>
           </div>
 
-          {/* Admin Panel (for IT workers) */}
-          {showAdminPanel && (
-            <div style={{ marginTop: "30px", padding: "20px", border: "2px solid #2196F3", borderRadius: "10px" }}>
-              <h2>👨‍💼 IT Admin Panel</h2>
-              <p style={{ color: "#666", marginBottom: "20px" }}>Manage job applications</p>
+          {}
+          {showApprovalModal && (
+            <div style={{
+              position: "fixed",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: "rgba(0,0,0,0.5)",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              zIndex: 1000
+            }}>
+              <div style={{
+                background: "white",
+                padding: "30px",
+                borderRadius: "10px",
+                maxWidth: "500px",
+                maxHeight: "80vh",
+                overflowY: "auto"
+              }}>
+                <h3>👨‍💼 Approve Job Applications</h3>
+                
+                {loading ? (
+                  <p>Loading applicants...</p>
+                ) : applicants.length === 0 ? (
+                  <p>No pending applications</p>
+                ) : (
+                  <div style={{ marginTop: "20px" }}>
+                    {applicants.map((applicant) => (
+                      <div key={applicant._id} style={{
+                        border: "1px solid #ddd",
+                        borderRadius: "8px",
+                        padding: "15px",
+                        marginBottom: "15px",
+                        background: "#f9f9f9"
+                      }}>
+                        <h4>{applicant.profile?.fullName || "No Name"}</h4>
+                        <p><b>Email:</b> {applicant.email}</p>
+                        <p><b>Applied for:</b> {applicant.appliedFor}</p>
+                        <p><b>Status:</b> 
+                          <span style={{ 
+                            color: "orange",
+                            fontWeight: "bold",
+                            marginLeft: "8px"
+                          }}>
+                            PENDING
+                          </span>
+                        </p>
+                        
+                        <button 
+                          onClick={() => handleApprove(applicant._id, applicant.profile?.fullName)}
+                          style={{
+                            background: "#4CAF50",
+                            color: "white",
+                            border: "none",
+                            padding: "8px 15px",
+                            borderRadius: "4px",
+                            marginTop: "10px",
+                            cursor: "pointer"
+                          }}
+                        >
+                          ✅ Approve
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
 
-              {applicants.length === 0 ? (
-                <p>No pending applications.</p>
-              ) : (
-                <div style={{ marginTop: "20px" }}>
-                  {applicants.map((applicant) => (
-                    <div key={applicant._id} style={{
-                      border: "1px solid #ddd",
-                      borderRadius: "8px",
-                      padding: "15px",
-                      marginBottom: "15px",
-                      background: "#f9f9f9"
-                    }}>
-                      <h3>{applicant.profile?.fullName}</h3>
-                      <p><b>Email:</b> {applicant.email}</p>
-                      <p><b>Applied for:</b> {applicant.appliedFor}</p>
-                      <p><b>Status:</b> 
-                        <span style={{ 
-                          color: applicant.applicationStatus === "approved" ? "green" : 
-                                 applicant.applicationStatus === "rejected" ? "red" : "orange",
-                          fontWeight: "bold",
-                          marginLeft: "8px"
-                        }}>
-                          {applicant.applicationStatus?.toUpperCase()}
-                        </span>
-                      </p>
-                      
-                      {applicant.applicationStatus === "pending" && (
-                        <div style={{ marginTop: "10px" }}>
-                          <button 
-                            onClick={() => handleApplication(applicant._id, "approved")}
-                            style={{
-                              background: "#4CAF50",
-                              color: "white",
-                              border: "none",
-                              padding: "8px 15px",
-                              borderRadius: "4px",
-                              marginRight: "10px",
-                              cursor: "pointer"
-                            }}
-                          >
-                            ✅ Approve
-                          </button>
-                          <button 
-                            onClick={() => handleApplication(applicant._id, "rejected")}
-                            style={{
-                              background: "#f44336",
-                              color: "white",
-                              border: "none",
-                              padding: "8px 15px",
-                              borderRadius: "4px",
-                              cursor: "pointer"
-                            }}
-                          >
-                            ❌ Reject
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
+                <button
+                  onClick={() => setShowApprovalModal(false)}
+                  style={{
+                    background: "#f44336",
+                    color: "white",
+                    border: "none",
+                    padding: "10px 20px",
+                    borderRadius: "5px",
+                    marginTop: "20px",
+                    cursor: "pointer"
+                  }}
+                >
+                  ❌ Close
+                </button>
+              </div>
             </div>
           )}
         </div>
