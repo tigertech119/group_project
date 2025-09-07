@@ -8,7 +8,6 @@ export default function AdminDashboard({ user }) {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-// Fetch all applicants - IMPROVED ERROR HANDLING ✅
 const fetchApplicants = async () => {
   try {
     setError("");

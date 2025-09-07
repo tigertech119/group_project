@@ -1,12 +1,13 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const ViewReports = () => {
   const [reportId, setReportId] = useState("");
   const [message, setMessage] = useState("");
   const [report, setReport] = useState(null);
+  const navigate = useNavigate();
 
   const handleSearch = () => {
-    // Dummy check – simulate a backend lookup
     if (reportId === "12345") {
       setMessage("✅ Report is ready!");
       setReport({
@@ -66,6 +67,15 @@ const ViewReports = () => {
               <p><b>Date:</b> {report.date}</p>
             </div>
           )}
+
+          {/* Back Button */}
+          <button 
+            className="btn btn-tertiary" 
+            onClick={() => navigate('/')}
+            style={{ marginTop: "30px" }}
+          >
+            Back to Home
+          </button>
         </div>
       </main>
     </div>
