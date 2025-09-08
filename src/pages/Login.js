@@ -1,181 +1,129 @@
+// src/pages/Login.js
 import React, { useState } from "react";
-import "./styles.css";
-import { useNavigate } from "react-router-dom"; // ✅ import navigate hook
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const navigate = useNavigate(); // ✅ create navigate function
+  const [forgotMode, setForgotMode] = useState(false);
+  const [resetCode, setResetCode] = useState("");
+  const [newPassword, setNewPassword] = useState("");
 
-  // 🔹 Call backend API for login
-const handleLogin = async (e) => {
-  e.preventDefault();
-  try {
-    const res = await fetch("http://localhost:5000/api/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include", // include cookies (JWT)
-      body: JSON.stringify({ email, password }),
-    });
-
-    const data = await res.json();
-    if (!res.ok) {
-      alert(data.error || "Login failed ❌");
-      return;
-    }
-
-    alert("✅ Login successful!");
-    console.log("User:", data.user);
-
-    // ✅ Always redirect to unified dashboard
-    navigate("/dashboard");
-  } catch (err) {
-    console.error(err);
-    alert("Something went wrong 😢");
-  }
-};
-
-  return (
-    <div className="home-container">
-      {/* Header */}
-      
-
-      {/* Main */}
-      <main className="main-content">
-        <div className="content-box">
-          <h1 className="title">Login</h1>
-          <p className="subtitle">Access your account securely</p>
-
-          <form onSubmit={handleLogin} style={{ textAlign: "left" }}>
-            <div className="form-group">
-              <label>Email:</label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
-
-            <div className="form-group">
-              <label>Password:</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            </div>
-
-            <button className="btn btn-primary" type="submit">
-              Login
-            </button>
-          </form>
-
-          <p style={{ marginTop: "15px", color: "#555" }}>
-            Don’t have an account?{" "}
-            <a href="/register" style={{ color: "#1a73e8", textDecoration: "none" }}>
-              Register here
-            </a>
-          </p>
-        </div>
-      </main>
-    </div>
-  );
-};
-
-export default Login;
-
-
-/*
-import React, { useState } from "react";
-import "./styles.css";
-import { useNavigate } from "react-router-dom"; // ✅ import navigate hook
-
-const Login = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const navigate = useNavigate(); // ✅ create navigate function
-
-  // 🔹 Call backend API for login
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
       const res = await fetch("http://localhost:5000/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        credentials: "include", // include cookies (JWT)
+        credentials: "include",
         body: JSON.stringify({ email, password }),
       });
-
       const data = await res.json();
-      if (!res.ok) {
-        alert(data.error || "Login failed ❌");
-        return;
-      }
-
+      if (!res.ok) return alert("❌ " + data.error);
       alert("✅ Login successful!");
-      console.log("User:", data.user);
-
-      // ✅ Redirect to dashboard (based on role or default patient dashboard)
-      if (data.user.role === "patient") {
-        navigate("/patient-dashboard");
-      } else if (data.user.role === "doctor") {
-        navigate("/doctor-dashboard");
-      } else if (data.user.role === "admin") {
-        navigate("/admin-dashboard");
-      } else {
-        navigate("/"); // fallback (homepage)
-      }
+      window.location.href = "/dashboard";
     } catch (err) {
-      console.error(err);
-      alert("Something went wrong 😢");
+      alert("❌ " + err.message);
+    }
+  };
+
+  // Step 1: Request reset code
+  const handleForgotPassword = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await fetch("http://localhost:5000/api/auth/forgot-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json();
+      if (!res.ok) return alert("❌ " + data.error);
+      alert("📩 Reset code sent to your email");
+      setForgotMode(true);
+    } catch (err) {
+      alert("❌ " + err.message);
+    }
+  };
+
+  // Step 2: Reset password with code
+  const handleResetPassword = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await fetch("http://localhost:5000/api/auth/reset-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, code: resetCode, newPassword }),
+      });
+      const data = await res.json();
+      if (!res.ok) return alert("❌ " + data.error);
+      alert("✅ Password reset successful. Please log in.");
+      setForgotMode(false);
+    } catch (err) {
+      alert("❌ " + err.message);
     }
   };
 
   return (
     <div className="home-container">
-      {}
-      
-
-      {}
       <main className="main-content">
         <div className="content-box">
           <h1 className="title">Login</h1>
-          <p className="subtitle">Access your account securely</p>
 
-          <form onSubmit={handleLogin} style={{ textAlign: "left" }}>
-            <div className="form-group">
-              <label>Email:</label>
+          {!forgotMode ? (
+            <form onSubmit={handleLogin}>
+              <div className="form-group">
+                <label>Email:</label>
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+              </div>
+              <div className="form-group">
+                <label>Password:</label>
+                <input
+                  type="password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+              </div>
+              <button className="btn btn-primary" type="submit">
+                Login
+              </button>
+              <p>
+                <button
+                  type="button"
+                  className="btn btn-tertiary"
+                  onClick={handleForgotPassword}
+                >
+                  Forgot Password?
+                </button>
+              </p>
+            </form>
+          ) : (
+            <form onSubmit={handleResetPassword}>
+              <h2>Reset Password</h2>
+              <p>Enter the code sent to your email and your new password</p>
               <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                type="text"
+                placeholder="Reset Code"
+                value={resetCode}
+                onChange={(e) => setResetCode(e.target.value)}
                 required
               />
-            </div>
-
-            <div className="form-group">
-              <label>Password:</label>
               <input
                 type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                placeholder="New Password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
                 required
               />
-            </div>
-
-            <button className="btn btn-primary" type="submit">
-              Login
-            </button>
-          </form>
-
-          <p style={{ marginTop: "15px", color: "#555" }}>
-            Don’t have an account?{" "}
-            <a href="/register" style={{ color: "#1a73e8", textDecoration: "none" }}>
-              Register here
-            </a>
-          </p>
+              <button className="btn btn-primary" type="submit">
+                Reset Password
+              </button>
+            </form>
+          )}
         </div>
       </main>
     </div>
@@ -183,4 +131,3 @@ const Login = () => {
 };
 
 export default Login;
-*/

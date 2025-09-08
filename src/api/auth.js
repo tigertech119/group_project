@@ -1,11 +1,23 @@
-import API_BASE from "./config";
+// src/api/auth.js
 
+// Use environment variable if available, fallback to localhost:5000
+const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:5000";
+
+// Helper to handle responses
 async function handleResponse(res) {
-  const data = await res.json();
+  let data;
+  try {
+    data = await res.json();
+  } catch {
+    return { error: "Invalid server response" };
+  }
   if (!res.ok) return { error: data.error || "Request failed" };
   return data;
 }
 
+// ----------------------
+// Register new user
+// ----------------------
 export async function registerUser(data) {
   try {
     const res = await fetch(`${API_BASE}/api/auth/register`, {
@@ -20,6 +32,9 @@ export async function registerUser(data) {
   }
 }
 
+// ----------------------
+// Login
+// ----------------------
 export async function loginUser(data) {
   try {
     const res = await fetch(`${API_BASE}/api/auth/login`, {
@@ -34,6 +49,9 @@ export async function loginUser(data) {
   }
 }
 
+// ----------------------
+// Apply for Job
+// ----------------------
 export async function applyJob(data) {
   try {
     const res = await fetch(`${API_BASE}/api/auth/apply-job`, {
@@ -48,7 +66,9 @@ export async function applyJob(data) {
   }
 }
 
-
+// ----------------------
+// Get logged-in user
+// ----------------------
 export async function getMe() {
   try {
     const res = await fetch(`${API_BASE}/api/me`, {
@@ -60,6 +80,9 @@ export async function getMe() {
   }
 }
 
+// ----------------------
+// Logout
+// ----------------------
 export async function logoutUser() {
   try {
     const res = await fetch(`${API_BASE}/api/auth/logout`, {
@@ -71,140 +94,3 @@ export async function logoutUser() {
     return { error: "Network error: " + err.message };
   }
 }
-/*
-const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:5000";
-
-async function handleResponse(res) {
-  const data = await res.json();
-  if (!res.ok) return { error: data.error || "Request failed" };
-  return data;
-}
-
-export async function registerUser(data) {
-  try {
-    const res = await fetch(`${API_BASE}/api/auth/register`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify(data),
-    });
-    return await handleResponse(res);
-  } catch (err) {
-    return { error: "Network error: " + err.message };
-  }
-}
-
-export async function loginUser(data) {
-  try {
-    const res = await fetch(`${API_BASE}/api/auth/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify(data),
-    });
-    return await handleResponse(res);
-  } catch (err) {
-    return { error: "Network error: " + err.message };
-  }
-}
-
-export async function applyJob(data) {
-  try {
-    const res = await fetch(`${API_BASE}/api/auth/apply-job`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify(data),
-    });
-    return await handleResponse(res);
-  } catch (err) {
-    return { error: "Network error: " + err.message };
-  }
-}
-
-
-export async function getMe() {
-  try {
-    const res = await fetch(`${API_BASE}/api/me`, {
-      credentials: "include",
-    });
-    return await handleResponse(res);
-  } catch (err) {
-    return { error: "Network error: " + err.message };
-  }
-}
-
-export async function logoutUser() {
-  try {
-    const res = await fetch(`${API_BASE}/api/auth/logout`, {
-      method: "POST",
-      credentials: "include",
-    });
-    return await handleResponse(res);
-  } catch (err) {
-    return { error: "Network error: " + err.message };
-  }
-}
-*/
-
-
-/*
-const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:5000";
-
-async function handleResponse(res) {
-  const data = await res.json();
-  if (!res.ok) return { error: data.error || "Request failed" };
-  return data;
-}
-
-export async function registerUser(data) {
-  try {
-    const res = await fetch(`${API_BASE}/api/auth/register`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify(data),
-    });
-    return await handleResponse(res);
-  } catch (err) {
-    return { error: "Network error: " + err.message };
-  }
-}
-
-export async function loginUser(data) {
-  try {
-    const res = await fetch(`${API_BASE}/api/auth/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify(data),
-    });
-    return await handleResponse(res);
-  } catch (err) {
-    return { error: "Network error: " + err.message };
-  }
-}
-
-export async function getMe() {
-  try {
-    const res = await fetch(`${API_BASE}/api/me`, {
-      credentials: "include",
-    });
-    return await handleResponse(res);
-  } catch (err) {
-    return { error: "Network error: " + err.message };
-  }
-}
-
-export async function logoutUser() {
-  try {
-    const res = await fetch(`${API_BASE}/api/auth/logout`, {
-      method: "POST",
-      credentials: "include",
-    });
-    return await handleResponse(res);
-  } catch (err) {
-    return { error: "Network error: " + err.message };
-  }
-}
-*/
