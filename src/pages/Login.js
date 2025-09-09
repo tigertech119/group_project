@@ -1,12 +1,12 @@
 // src/pages/Login.js
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { forgotPassword } from "../api/auth"; // ✅ frontend API helper
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [forgotMode, setForgotMode] = useState(false);
-  const [resetCode, setResetCode] = useState("");
-  const [newPassword, setNewPassword] = useState("");
+  const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -20,43 +20,30 @@ const Login = () => {
       const data = await res.json();
       if (!res.ok) return alert("❌ " + data.error);
       alert("✅ Login successful!");
-      window.location.href = "/dashboard";
+      navigate("/dashboard"); // redirect to dashboard
     } catch (err) {
       alert("❌ " + err.message);
     }
   };
 
-  // Step 1: Request reset code
-  const handleForgotPassword = async (e) => {
-    e.preventDefault();
-    try {
-      const res = await fetch("http://localhost:5000/api/auth/forgot-password", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      });
-      const data = await res.json();
-      if (!res.ok) return alert("❌ " + data.error);
-      alert("📩 Reset code sent to your email");
-      setForgotMode(true);
-    } catch (err) {
-      alert("❌ " + err.message);
+  const handleForgotPassword = async () => {
+    if (!email) {
+      return alert("⚠️ Please enter your email first.");
     }
-  };
 
-  // Step 2: Reset password with code
-  const handleResetPassword = async (e) => {
-    e.preventDefault();
     try {
-      const res = await fetch("http://localhost:5000/api/auth/reset-password", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, code: resetCode, newPassword }),
-      });
-      const data = await res.json();
-      if (!res.ok) return alert("❌ " + data.error);
-      alert("✅ Password reset successful. Please log in.");
-      setForgotMode(false);
+      const res = await forgotPassword(email); // ✅ use frontend helper
+      if (res.error) {
+        alert("❌ " + res.error);
+      } else {
+        alert("📩 Reset code sent to your email");
+
+        // ✅ Save email for ResetPassword.js
+        localStorage.setItem("resetEmail", email);
+
+        // ✅ Redirect to Reset Password page
+        navigate("/reset-password");
+      }
     } catch (err) {
       alert("❌ " + err.message);
     }
@@ -68,62 +55,41 @@ const Login = () => {
         <div className="content-box">
           <h1 className="title">Login</h1>
 
-          {!forgotMode ? (
-            <form onSubmit={handleLogin}>
-              <div className="form-group">
-                <label>Email:</label>
-                <input
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-              </div>
-              <div className="form-group">
-                <label>Password:</label>
-                <input
-                  type="password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-              </div>
-              <button className="btn btn-primary" type="submit">
-                Login
-              </button>
-              <p>
-                <button
-                  type="button"
-                  className="btn btn-tertiary"
-                  onClick={handleForgotPassword}
-                >
-                  Forgot Password?
-                </button>
-              </p>
-            </form>
-          ) : (
-            <form onSubmit={handleResetPassword}>
-              <h2>Reset Password</h2>
-              <p>Enter the code sent to your email and your new password</p>
+          <form onSubmit={handleLogin}>
+            <div className="form-group">
+              <label>Email:</label>
               <input
-                type="text"
-                placeholder="Reset Code"
-                value={resetCode}
-                onChange={(e) => setResetCode(e.target.value)}
+                type="email"
                 required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
               />
+            </div>
+            <div className="form-group">
+              <label>Password:</label>
               <input
                 type="password"
-                placeholder="New Password"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
                 required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
               />
-              <button className="btn btn-primary" type="submit">
-                Reset Password
+            </div>
+
+            <button className="btn btn-primary" type="submit">
+              Login
+            </button>
+
+            {/* Forgot Password link */}
+            <p style={{ marginTop: "10px" }}>
+              <button
+                type="button"
+                className="btn btn-tertiary"
+                onClick={handleForgotPassword}
+              >
+                Forgot Password?
               </button>
-            </form>
-          )}
+            </p>
+          </form>
         </div>
       </main>
     </div>

@@ -43,7 +43,7 @@ export default function PatientDashboard({ user }) {
             <p><b>Phone:</b> {user.profile?.phone}</p>
             <p><b>Email:</b> {user.email}</p>
             <p><b>Address:</b> {user.profile?.address}</p>
-            <p><b>Blood Group:</b> {user.profile?.bloodGroup || "N/A"}</p>
+            <p><b>Blood Group:</b> {user.profile?.blood_group }</p>
           </div>
 
           {/* Actions */}

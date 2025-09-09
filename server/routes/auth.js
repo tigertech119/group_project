@@ -33,11 +33,16 @@ function setAuthCookie(res, uid) {
 // ==========================
 // REGISTER
 // ==========================
+// ==========================
+// REGISTER
+// ==========================
 router.post("/register", async (req, res) => {
   try {
     const { email, password, profile } = req.body;
-    if (!email || !password) return res.status(400).json({ error: "Email and password are required" });
-    if (password.length < 6) return res.status(400).json({ error: "Password must be at least 6 characters" });
+    if (!email || !password)
+      return res.status(400).json({ error: "Email and password are required" });
+    if (password.length < 6)
+      return res.status(400).json({ error: "Password must be at least 6 characters" });
 
     const emailLower = email.trim().toLowerCase();
     const existing = await User.findOne({ email: emailLower });
@@ -46,13 +51,21 @@ router.post("/register", async (req, res) => {
     const passwordHash = await bcrypt.hash(password, 10);
     const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
 
+    // ✅ explicitly map fields so they’re always consistent
     const user = await User.create({
       email: emailLower,
       passwordHash,
-      role: "patient",  // default role
-      profile: profile || {},
+      role: "patient", // default role
+      profile: {
+        fullName: profile?.fullName || "",
+        phone: profile?.phone || "",
+        gender: profile?.gender || "",
+        dob: profile?.dob || null,
+        address: profile?.address || "",
+        blood_group: profile?.blood_group || "N/A", // ✅ fix blood group save
+      },
       isVerified: false,
-      verificationCode
+      verificationCode,
     });
 
     // Send verification email
@@ -60,10 +73,10 @@ router.post("/register", async (req, res) => {
       from: `"Apex Hospital" <${process.env.EMAIL_USER}>`,
       to: emailLower,
       subject: "Verify your Apex Hospital account",
-      html: `<p>Hello ${user.profile?.name || "User"},</p>
+      html: `<p>Hello ${user.profile?.fullName || "User"},</p>
              <p>Welcome to Apex Hospital! Use the code below to verify your account:</p>
              <h2>${verificationCode}</h2>
-             <p>If you didn’t request this, you can ignore this email.</p>`
+             <p>If you didn’t request this, you can ignore this email.</p>`,
     });
 
     res.status(201).json({ message: "Verification code sent to email" });
@@ -72,6 +85,7 @@ router.post("/register", async (req, res) => {
     res.status(500).json({ error: "Server error while registering" });
   }
 });
+
 
 // ==========================
 // VERIFY EMAIL
@@ -84,7 +98,7 @@ router.post("/verify-email", async (req, res) => {
 
     if (!user) return res.status(400).json({ error: "User not found" });
     if (user.isVerified) return res.status(400).json({ error: "Already verified" });
-    if (user.verificationCode !== code) return res.status(400).json({ error: "Invalid code" });
+    if (String(user.verificationCode) !== String(code)) return res.status(400).json({ error: "Invalid code" });
 
     user.isVerified = true;
     user.verificationCode = undefined;
@@ -114,7 +128,7 @@ router.post("/login", async (req, res) => {
 
     setAuthCookie(res, user._id.toString());
 
-    const { passwordHash, verificationCode, resetCode, ...safe } = user.toObject();
+    const { passwordHash, verificationCode, resetCode, resetCodeExpires, ...safe } = user.toObject();
     res.json({ user: safe });
   } catch (err) {
     console.error("[LOGIN ERROR]", err);
@@ -145,18 +159,21 @@ router.post("/forgot-password", async (req, res) => {
     const user = await User.findOne({ email: emailLower });
     if (!user) return res.status(400).json({ error: "No account found with this email" });
 
+    // Generate 6-digit OTP
     const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
     user.resetCode = resetCode;
+    user.resetCodeExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 min expiry
     await user.save();
 
     console.log(`[FORGOT PASSWORD] Reset code ${resetCode} for ${emailLower}`);
 
+    // Send email
     await transporter.sendMail({
       from: `"Apex Hospital" <${process.env.EMAIL_USER}>`,
       to: emailLower,
       subject: "Password Reset Code - Apex Hospital",
       html: `<p>Hello ${user.profile?.name || "User"},</p>
-             <p>You requested a password reset. Use the code below:</p>
+             <p>You requested a password reset. Use the code below (valid for 10 minutes):</p>
              <h2>${resetCode}</h2>
              <p>If you didn’t request this, you can ignore this email.</p>`
     });
@@ -186,14 +203,22 @@ router.post("/reset-password", async (req, res) => {
     const user = await User.findOne({ email: emailLower });
     if (!user) return res.status(400).json({ error: "User not found" });
 
-    console.log(`[RESET PASSWORD] Stored: ${user.resetCode}, Submitted: ${code}`);
+    console.log(`[RESET PASSWORD] Stored: ${user.resetCode}, Expires: ${user.resetCodeExpires}, Submitted: ${code}`);
 
-    if (user.resetCode !== code) {
-      return res.status(400).json({ error: "Invalid or expired reset code" });
+    // Validate OTP
+    if (String(user.resetCode) !== String(code)) {
+      return res.status(400).json({ error: "Invalid reset code" });
     }
 
+    // Check expiry
+    if (!user.resetCodeExpires || Date.now() > new Date(user.resetCodeExpires).getTime()) {
+      return res.status(400).json({ error: "Expired reset code" });
+    }
+
+    // Update password
     user.passwordHash = await bcrypt.hash(newPassword, 10);
     user.resetCode = undefined;
+    user.resetCodeExpires = undefined;
     await user.save();
 
     res.json({ message: "Password reset successful" });

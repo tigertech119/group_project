@@ -10,6 +10,8 @@ import ApplyJobs from "./pages/ApplyJobs";
 import ViewReports from './pages/ViewReports';
 import Prescriptions from './pages/Prescriptions';
 import AccountSettings from './pages/AccountSettings';
+import ResetPassword from "./pages/ResetPassword";
+import ForgotPassword from "./pages/ForgotPassword";
 
 function App() {
   return (
@@ -17,6 +19,7 @@ function App() {
       <Navbar />
       <Routes>
         {/* Public */}
+        <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/" element={<Home />} />
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
@@ -26,6 +29,8 @@ function App() {
         <Route path="/view-reports" element={<ViewReports />} />
         <Route path="/prescriptions" element={<Prescriptions />} />
         <Route path="/account-settings" element={<AccountSettings />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+
 
         {/* Protected route → handles doctor/patient/staff */}
         <Route path="/dashboard" element={<DashboardRouter />} />

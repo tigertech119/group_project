@@ -12,6 +12,7 @@ const Register = () => {
     sex: "",
     age: "",
     address: "",
+    blood_group: "",
   });
   const [code, setCode] = useState("");
   const [email, setEmail] = useState("");
@@ -33,6 +34,7 @@ const Register = () => {
           ? new Date().setFullYear(new Date().getFullYear() - formData.age)
           : null,
         address: formData.address,
+        blood_group: formData.blood_group, 
       },
     };
 
@@ -145,6 +147,29 @@ const Register = () => {
                   onChange={handleChange}
                 />
               </div>
+              <div className="form-group">
+                <label>Blood Group:</label>
+                <select
+                  name="blood_group"
+                  required
+                  value={formData.blood_group}
+                  onChange={handleChange}
+                >
+                  <option value="">--Select--</option>
+                  <option value="A+">A+</option>
+                  <option value="A-">A-</option>
+                  <option value="B+">B+</option>
+                  <option value="B-">B-</option>
+                  <option value="O+">O+</option>
+                  <option value="O-">O-</option>
+                  <option value="AB+">AB+</option>
+                  <option value="AB-">AB-</option>
+                </select>
+              </div>
+
+
+
+
               <button className="btn btn-primary" type="submit">
                 Submit
               </button>

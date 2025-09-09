@@ -94,3 +94,41 @@ export async function logoutUser() {
     return { error: "Network error: " + err.message };
   }
 }
+
+// ----------------------
+// Reset password
+// ----------------------
+export async function resetPassword({ email, code, newPassword }) {
+  try {
+    const res = await fetch(`${process.env.REACT_APP_API_BASE}/api/auth/reset-password`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, code, newPassword }),
+      credentials: "include"
+    });
+    return await res.json();
+  } catch (err) {
+    console.error("Reset password error:", err);
+    return { error: "Network error" };
+  }
+}
+
+
+// ----------------------
+// Forgot password
+// ----------------------
+
+export async function forgotPassword(email) {
+  try {
+    const res = await fetch(`${process.env.REACT_APP_API_BASE}/api/auth/forgot-password`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email })
+    });
+    return await res.json();
+  } catch (err) {
+    console.error("Forgot password error:", err);
+    return { error: "Network error" };
+  }
+}
+

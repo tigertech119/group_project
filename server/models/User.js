@@ -1,23 +1,26 @@
 const mongoose = require("mongoose");
 
-const userSchema = new mongoose.Schema({
-  email: { type: String, required: true, unique: true, lowercase: true },
-  passwordHash: { type: String, required: true },
-  role: { type: String, default: "patient" },
-  profile: {
-    name: String,
-    phone: String,
-    gender: String,
-    age: Number,
-    address: String,
+const userSchema = new mongoose.Schema(
+  {
+    email: { type: String, required: true, unique: true },
+    passwordHash: { type: String, required: true },
+    role: { type: String, enum: ["patient", "doctor", "admin", "staff"], default: "patient" },
+    profile: {
+      name: { type: String },
+      phone: { type: String },
+      gender: { type: String },
+      address: { type: String },
+      blood_group: { type: String },   
+    },
+    isVerified: { type: Boolean, default: false },
+    verificationCode: { type: String },
+    resetCode: { type: String },
+    resetCodeExpires: { type: Date },
   },
-  isVerified: { type: Boolean, default: false },
-  verificationCode: { type: String },  // for registration verification
-  resetCode: { type: String },         // for forgot password
-}, { timestamps: true });
+  { timestamps: true }
+);
 
 module.exports = mongoose.model("User", userSchema);
-
 
 /*
 const mongoose = require("mongoose");
