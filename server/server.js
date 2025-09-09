@@ -2,12 +2,18 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
+
 require("dotenv").config();
+
+const appointments = require("./routes/appointments");
+const prescriptions = require("./routes/prescriptions");
+const doctors = require("./routes/doctors");
+const authRoutes = require("./routes/auth");
+const meRoutes = require("./routes/me");
 
 const app = express();
 
 // ✅ CORS setup
-// server/server.js
 app.use(cors({
   origin: "http://localhost:3000",
   credentials: true
@@ -16,16 +22,22 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());
 
-// ✅ Routes
-app.use("/api/auth", require("./routes/auth"));
-app.use("/api/me", require("./routes/me"));
+// ✅ Mount routes
+app.use("/api/auth", authRoutes);         // all auth routes (register, login, apply-job, applicants, etc.)
+app.use("/api/appointments", appointments);
+app.use("/api/prescriptions", prescriptions);
+app.use("/api/doctors", doctors);
+app.use("/api/me", meRoutes);
 
+// ✅ Health check
 app.get("/api/health", (_req, res) => res.json({ ok: true }));
 
+// ✅ Start server
 async function start() {
   try {
     await mongoose.connect(process.env.MONGODB_URI, { dbName: process.env.DB_NAME });
     console.log("✅ MongoDB connected");
+
     const PORT = process.env.PORT || 5000;
     app.listen(PORT, () => console.log(`🚀 API running at http://localhost:${PORT}`));
   } catch (err) {
@@ -35,7 +47,6 @@ async function start() {
 }
 
 start();
-
 
 /*
 const express = require("express");

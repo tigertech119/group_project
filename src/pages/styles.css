@@ -283,3 +283,71 @@
   background: linear-gradient(45deg, #607D8B, #90A4AE); /* Gray */
   color: white;
 }
+
+
+.dashboard-container {
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 20px;
+}
+
+.dashboard-header {
+  background: #0077ff;
+  color: white;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.welcome-text {
+  font-size: 18px;
+  margin-top: 10px;
+}
+
+.profile-section, .appointments-section {
+  background: white;
+  padding: 20px;
+  margin-top: 20px;
+  border-radius: 10px;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+}
+
+.profile-section ul {
+  list-style: none;
+  padding: 0;
+}
+
+.profile-section li {
+  margin: 8px 0;
+}
+
+.appointment-card {
+  background: #f7f9fc;
+  padding: 15px;
+  border-radius: 8px;
+  text-align: center;
+  color: #555;
+  font-style: italic;
+}
+
+.dashboard-card {
+  padding: 30px;
+  border-radius: 10px;
+  text-align: center;
+  margin-top: 50px;
+}
+
+.dashboard-card.warning {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.dashboard-card.info {
+  background: #e3f2fd;
+  color: #0d47a1;
+}
+
+.dashboard-card.danger {
+  background: #f8d7da;
+  color: #721c24;
+}

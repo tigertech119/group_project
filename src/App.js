@@ -12,6 +12,9 @@ import Prescriptions from './pages/Prescriptions';
 import AccountSettings from './pages/AccountSettings';
 import ResetPassword from "./pages/ResetPassword";
 import ForgotPassword from "./pages/ForgotPassword";
+import VerifyEmail from "./pages/VerifyEmail";
+
+
 
 function App() {
   return (
@@ -30,6 +33,7 @@ function App() {
         <Route path="/prescriptions" element={<Prescriptions />} />
         <Route path="/account-settings" element={<AccountSettings />} />
         <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/verify-email" element={<VerifyEmail />} />
 
 
         {/* Protected route → handles doctor/patient/staff */}

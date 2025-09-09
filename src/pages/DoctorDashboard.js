@@ -1,74 +1,85 @@
-import React, { useState } from "react";
-import "./styles.css";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { getMe } from "../api/auth";
+import "./styles.css"; // ✅ make sure you have some global CSS
 
-const DoctorDashboard = ({ user }) => {
-  const [patients] = useState(["Patient A", "Patient B", "Patient C"]);
-  const [selectedPatient, setSelectedPatient] = useState("");
-  const [diagnosis, setDiagnosis] = useState("");
-  const [medicine, setMedicine] = useState("");
+export default function DoctorDashboard() {
+  const [user, setUser] = useState(null);
 
-  const handleSave = () => {
-    alert(
-      `Saved for ${selectedPatient}: Diagnosis = ${diagnosis}, Medicine = ${medicine}`
+  useEffect(() => {
+    async function fetchUser() {
+      const res = await getMe();
+      if (res.user) setUser(res.user);
+    }
+    fetchUser();
+  }, []);
+
+  if (!user) return <p className="loading">⏳ Loading your dashboard...</p>;
+
+  // 🚩 Case 1: Not verified by email yet
+  if (!user.isVerified) {
+    return (
+      <div className="dashboard-container">
+        <div className="dashboard-card warning">
+          <h1>Doctor Dashboard</h1>
+          <p>📧 Please verify your email before continuing.</p>
+        </div>
+      </div>
     );
-    setDiagnosis("");
-    setMedicine("");
-  };
+  }
 
+  // 🚩 Case 2: Verified but awaiting admin approval
+  if (user.applicationStatus === "pending") {
+    return (
+      <div className="dashboard-container">
+        <div className="dashboard-card info">
+          <h1>Doctor Dashboard</h1>
+          <p>✅ Email verified.</p>
+          <p>⏳ Waiting for hospital authority approval.</p>
+          <p>You will receive an email once approved.</p>
+        </div>
+      </div>
+    );
+  }
+
+  // 🚩 Case 3: Rejected
+  if (user.applicationStatus === "rejected") {
+    return (
+      <div className="dashboard-container">
+        <div className="dashboard-card danger">
+          <h1>Doctor Dashboard</h1>
+          <p>❌ Your application was <b>rejected</b>.</p>
+          <p>Please contact hospital administration.</p>
+        </div>
+      </div>
+    );
+  }
+
+  // 🚩 Case 4: Approved → full dashboard
   return (
-    <div className="home-container">
-      <header className="header">
-        <div className="logo">👨‍⚕️ Doctor Dashboard</div>
-        <button className="btn btn-tertiary">Logout</button>
+    <div className="dashboard-container">
+      <header className="dashboard-header">
+        <h1>👨‍⚕️ Doctor Dashboard</h1>
+        <p className="welcome-text">
+          Welcome Dr. <b>{user.profile?.fullName}</b>
+        </p>
       </header>
 
-      <main className="main-content">
-        <div className="content-box">
-          <h1 className="title">
-            Welcome, Dr. {user?.profile?.fullName || "Doctor"}
-          </h1>
+      <section className="profile-section">
+        <h2>👤 Profile Information</h2>
+        <ul>
+          <li><b>Email:</b> {user.email}</li>
+          <li><b>Department:</b> {user.profile?.department}</li>
+          <li><b>Phone:</b> {user.profile?.phone}</li>
+          <li><b>Gender:</b> {user.profile?.gender}</li>
+        </ul>
+      </section>
 
-          <div className="form-group">
-            <label>Select Patient:</label>
-            <select
-              value={selectedPatient}
-              onChange={(e) => setSelectedPatient(e.target.value)}
-            >
-              <option value="">Choose</option>
-              {patients.map((p, idx) => (
-                <option key={idx} value={p}>
-                  {p}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {selectedPatient && (
-            <>
-              <div className="form-group">
-                <label>Diagnosis:</label>
-                <input
-                  value={diagnosis}
-                  onChange={(e) => setDiagnosis(e.target.value)}
-                />
-              </div>
-              <div className="form-group">
-                <label>Medicines:</label>
-                <input
-                  value={medicine}
-                  onChange={(e) => setMedicine(e.target.value)}
-                />
-              </div>
-              <button className="btn btn-primary" onClick={handleSave}>
-                Save
-              </button>
-            </>
-          )}
+      <section className="appointments-section">
+        <h2>📅 Your Appointments</h2>
+        <div className="appointment-card">
+          <p>No appointments yet.</p>
         </div>
-      </main>
+      </section>
     </div>
   );
-};
-
-export default DoctorDashboard;
+}

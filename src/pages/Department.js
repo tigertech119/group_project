@@ -1,38 +1,38 @@
-import React from 'react';
-import './styles.css';
-import { useNavigate } from 'react-router-dom';
+// src/pages/Department.js
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import "./styles.css";
 
-const Department = () => {
+export default function Department() {
   const navigate = useNavigate();
+  const departments = [
+    "🫀Cardiology",
+    "🧠Neurology",
+    "🦴Orthopedics",
+    "👶Pediatrics",
+    "🩺General Medicine",
+    "👁Ophthalmology",
+    "🦷Dentistry",
+  ];
 
   return (
     <div className="home-container">
       <main className="main-content">
         <div className="content-box">
-          <h1 className="title">Hospital Departments</h1>
-          
-          <ul style={{ textAlign: "left", fontSize: "1.2em" }}>
-            <li>🫀 Cardiology</li>
-            <li>🧠 Neurology</li>
-            <li>🦴 Orthopedics</li>
-            <li>👶 Pediatrics</li>
-            <li>🩺 General Medicine</li>
-            <li>👁 Ophthalmology</li>
-            <li>🦷 Dentistry</li>
+          <h1 className="title">Departments</h1>
+          <ul>
+            {departments.map((dep) => (
+              <li
+                key={dep}
+                onClick={() => navigate(`/doctors/${dep}`)} // ✅ new page
+                style={{ cursor: "pointer", margin: "10px 0" }}
+              >
+                {dep}
+              </li>
+            ))}
           </ul>
-
-          {/* Back Button */}
-          <button 
-            className="btn btn-tertiary" 
-            onClick={() => navigate('/')}
-            style={{ marginTop: "30px" }}
-          >
-             Back to Home
-          </button>
         </div>
       </main>
     </div>
   );
-};
-
-export default Department;
+}

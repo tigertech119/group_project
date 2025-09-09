@@ -1,5 +1,5 @@
 // src/api/auth.js
-
+// THIS api/auth.js ACTS AS MIDDLEMAN BETWEEN SERVER(server/auth.js) AND REACT APP AND FETCH AND SENT STUFF
 // Use environment variable if available, fallback to localhost:5000
 const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:5000";
 
@@ -115,7 +115,7 @@ export async function resetPassword({ email, code, newPassword }) {
 
 
 // ----------------------
-// Forgot password
+// Reset password
 // ----------------------
 
 export async function forgotPassword(email) {
@@ -131,4 +131,23 @@ export async function forgotPassword(email) {
     return { error: "Network error" };
   }
 }
+
+
+// ----------------------
+// Verify Email
+// ----------------------
+export async function verifyEmail(data) {
+  try {
+    const res = await fetch(`${API_BASE}/api/auth/verify-email`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify(data),
+    });
+    return await res.json();
+  } catch (err) {
+    return { error: "Network error: " + err.message };
+  }
+}
+
 

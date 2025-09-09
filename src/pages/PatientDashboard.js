@@ -1,19 +1,28 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./styles.css";
 
 export default function PatientDashboard({ user }) {
   const navigate = useNavigate();
+  const [appointments, setAppointments] = useState([]);
 
-  // Logout handler
+  // Fetch patient appointments
+  useEffect(() => {
+    async function fetchAppointments() {
+      const res = await fetch(`http://localhost:5000/api/appointments/patient/${user._id}`);
+      const data = await res.json();
+      setAppointments(data);
+    }
+    fetchAppointments();
+  }, [user._id]);
+
   const handleLogout = () => {
     alert("✅ Logged out successfully!");
-    navigate("/"); // go to Home.js (homepage route)
+    navigate("/");
   };
 
   return (
     <div className="home-container">
-      {/* Header */}
       <header className="header">
         <div className="logo">🏥 Patient Dashboard</div>
         <button className="btn btn-tertiary" onClick={handleLogout}>
@@ -21,7 +30,6 @@ export default function PatientDashboard({ user }) {
         </button>
       </header>
 
-      {/* Welcome */}
       <main className="main-content">
         <div className="content-box">
           <h1 className="title">
@@ -43,16 +51,14 @@ export default function PatientDashboard({ user }) {
             <p><b>Phone:</b> {user.profile?.phone}</p>
             <p><b>Email:</b> {user.email}</p>
             <p><b>Address:</b> {user.profile?.address}</p>
-            <p><b>Blood Group:</b> {user.profile?.blood_group }</p>
+            <p><b>Blood Group:</b> {user.profile?.blood_group || "N/A"}</p>
           </div>
 
           {/* Actions */}
           <div className="button-grid">
             <button
               className="action-btn"
-              onClick={() =>
-                alert("📞 Call +1-800-555-1234 to book an appointment")
-              }
+              onClick={() => navigate("/departments")} // ✅ route to department page
             >
               📅 Book Appointment
             </button>
@@ -93,6 +99,22 @@ export default function PatientDashboard({ user }) {
             >
               ⚙️ Account Settings
             </button>
+          </div>
+
+          {/* Appointments */}
+          <div className="appointments">
+            <h3>📅 Your Appointments</h3>
+            {appointments.length === 0 ? (
+              <p>No appointments yet.</p>
+            ) : (
+              appointments.map((app) => (
+                <div key={app._id} className="appointment-card">
+                  <p><b>Doctor:</b> {app.doctorName || app.doctorId}</p>
+                  <p><b>Date:</b> {app.date} at {app.time}</p>
+                  <p><b>Status:</b> {app.status}</p>
+                </div>
+              ))
+            )}
           </div>
 
           {/* Notifications */}

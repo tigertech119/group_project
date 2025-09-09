@@ -4,23 +4,41 @@ const userSchema = new mongoose.Schema(
   {
     email: { type: String, required: true, unique: true },
     passwordHash: { type: String, required: true },
-    role: { type: String, enum: ["patient", "doctor", "admin", "staff"], default: "patient" },
-    profile: {
-      name: { type: String },
-      phone: { type: String },
-      gender: { type: String },
-      address: { type: String },
-      blood_group: { type: String },   
+    role: { 
+      type: String, 
+      enum: ["patient", "doctor", "nurse", "wardboy", "it worker", "admin"], 
+      default: "patient" 
     },
-    isVerified: { type: Boolean, default: false },
-    verificationCode: { type: String },
-    resetCode: { type: String },
-    resetCodeExpires: { type: Date },
+    profile: {
+      fullName: String,
+      phone: String,
+      gender: String,
+      dob: Date,
+      address: String,
+      blood_group: String,
+      department: String, // for doctors
+    },
+    isVerified: { type: Boolean, default: false },   // email verification
+    verificationCode: String,                        // OTP for email
+    resetCode: String,
+    resetCodeExpires: Date,
+
+    // 🟢 NEW flow for applications:
+    // draft → before email verification
+    // pending → email verified, waiting admin approval
+    // approved → admin approved
+    // rejected → admin rejected
+    applicationStatus: { 
+      type: String, 
+      enum: ["draft", "pending", "approved", "rejected"], 
+      default: "draft" 
+    },
   },
   { timestamps: true }
 );
 
 module.exports = mongoose.model("User", userSchema);
+
 
 /*
 const mongoose = require("mongoose");
