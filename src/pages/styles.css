@@ -351,3 +351,35 @@
   background: #f8d7da;
   color: #721c24;
 }
+
+
+.doctor-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.doctor-card {
+  background: #f9f9f9;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  transition: transform 0.2s ease;
+}
+
+.doctor-card:hover {
+  transform: translateY(-5px);
+}
+
+.doctor-card h2 {
+  margin-bottom: 10px;
+  font-size: 1.3em;
+}
+
+.doctor-card p {
+  margin: 5px 0;
+  font-size: 0.95em;
+  color: #444;
+}

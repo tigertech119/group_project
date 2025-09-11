@@ -5,14 +5,16 @@ import "./styles.css";
 
 export default function Department() {
   const navigate = useNavigate();
+
+  // ✅ Store label (with emoji) and value (clean name for API & URL)
   const departments = [
-    "🫀Cardiology",
-    "🧠Neurology",
-    "🦴Orthopedics",
-    "👶Pediatrics",
-    "🩺General Medicine",
-    "👁Ophthalmology",
-    "🦷Dentistry",
+    { label: "🫀 Cardiology", value: "Cardiology" },
+    { label: "🧠 Neurology", value: "Neurology" },
+    { label: "🦴 Orthopedics", value: "Orthopedics" },
+    { label: "👶 Pediatrics", value: "Pediatrics" },
+    { label: "🩺 General Medicine", value: "General Medicine" },
+    { label: "👁 Ophthalmology", value: "Ophthalmology" },
+    { label: "🦷 Dentistry", value: "Dentistry" },
   ];
 
   return (
@@ -23,11 +25,11 @@ export default function Department() {
           <ul>
             {departments.map((dep) => (
               <li
-                key={dep}
-                onClick={() => navigate(`/doctors/${dep}`)} // ✅ new page
+                key={dep.value}
+                onClick={() => navigate(`/doctors/${dep.value}`)} // ✅ clean value used in route
                 style={{ cursor: "pointer", margin: "10px 0" }}
               >
-                {dep}
+                {dep.label}
               </li>
             ))}
           </ul>

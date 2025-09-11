@@ -1,9 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { getMe } from "../api/auth";
-import "./styles.css"; // ✅ make sure you have some global CSS
+import "./styles.css";
 
 export default function DoctorDashboard() {
   const [user, setUser] = useState(null);
+  const [patients] = useState(["Patient A", "Patient B", "Patient C"]);
+  const [selectedPatient, setSelectedPatient] = useState("");
+  const [diagnosis, setDiagnosis] = useState("");
+  const [medicine, setMedicine] = useState("");
 
   useEffect(() => {
     async function fetchUser() {
@@ -54,32 +58,74 @@ export default function DoctorDashboard() {
     );
   }
 
-  // 🚩 Case 4: Approved → full dashboard
+  // 🚩 Case 4: Approved → full doctor workflow UI
+  const handleSave = () => {
+    alert(
+      `Saved for ${selectedPatient}: Diagnosis = ${diagnosis}, Medicine = ${medicine}`
+    );
+    setDiagnosis("");
+    setMedicine("");
+  };
+
   return (
-    <div className="dashboard-container">
-      <header className="dashboard-header">
-        <h1>👨‍⚕️ Doctor Dashboard</h1>
-        <p className="welcome-text">
-          Welcome Dr. <b>{user.profile?.fullName}</b>
-        </p>
+    <div className="home-container">
+      <header className="header">
+        <div className="logo">👨‍⚕️ Doctor Dashboard</div>
+        <button
+          className="btn btn-tertiary"
+          onClick={() => {
+            alert("✅ Logged out successfully!");
+            window.location.href = "/";
+          }}
+        >
+          Logout
+        </button>
       </header>
 
-      <section className="profile-section">
-        <h2>👤 Profile Information</h2>
-        <ul>
-          <li><b>Email:</b> {user.email}</li>
-          <li><b>Department:</b> {user.profile?.department}</li>
-          <li><b>Phone:</b> {user.profile?.phone}</li>
-          <li><b>Gender:</b> {user.profile?.gender}</li>
-        </ul>
-      </section>
+      <main className="main-content">
+        <div className="content-box">
+          <h1 className="title">
+            Welcome, Dr. {user?.profile?.fullName || "Doctor"}
+          </h1>
 
-      <section className="appointments-section">
-        <h2>📅 Your Appointments</h2>
-        <div className="appointment-card">
-          <p>No appointments yet.</p>
+          <div className="form-group">
+            <label>Select Patient:</label>
+            <select
+              value={selectedPatient}
+              onChange={(e) => setSelectedPatient(e.target.value)}
+            >
+              <option value="">Choose</option>
+              {patients.map((p, idx) => (
+                <option key={idx} value={p}>
+                  {p}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {selectedPatient && (
+            <>
+              <div className="form-group">
+                <label>Diagnosis:</label>
+                <input
+                  value={diagnosis}
+                  onChange={(e) => setDiagnosis(e.target.value)}
+                />
+              </div>
+              <div className="form-group">
+                <label>Medicines:</label>
+                <input
+                  value={medicine}
+                  onChange={(e) => setMedicine(e.target.value)}
+                />
+              </div>
+              <button className="btn btn-primary" onClick={handleSave}>
+                Save
+              </button>
+            </>
+          )}
         </div>
-      </section>
+      </main>
     </div>
   );
 }

@@ -7,7 +7,12 @@ const router = express.Router();
 router.get("/:department", async (req, res) => {
   try {
     const department = req.params.department;
-    const doctors = await User.find({ role: "doctor", "profile.department": department });
+   const doctors = await User.find({
+  role: "doctor",
+  "profile.department": department,
+  applicationStatus: "approved"   // ✅ only approved doctors
+});
+
 
     res.json(doctors);
   } catch (err) {

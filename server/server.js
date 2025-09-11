@@ -23,7 +23,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 // ✅ Mount routes
-app.use("/api/auth", authRoutes);         // all auth routes (register, login, apply-job, applicants, etc.)
+app.use("/api/auth", authRoutes);         
 app.use("/api/appointments", appointments);
 app.use("/api/prescriptions", prescriptions);
 app.use("/api/doctors", doctors);
@@ -47,6 +47,7 @@ async function start() {
 }
 
 start();
+
 
 /*
 const express = require("express");

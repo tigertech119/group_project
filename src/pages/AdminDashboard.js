@@ -1,98 +1,62 @@
-import React, { useState, useEffect } from "react";
+// src/pages/AdminDashboard.js
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./styles.css";
 
-export default function AdminDashboard({ user }) {
+export default function AdminDashboard() {
   const [applicants, setApplicants] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
   const navigate = useNavigate();
 
-const fetchApplicants = async () => {
-  try {
-    setError("");
-    setLoading(true);
-    const res = await fetch("http://localhost:5000/api/auth/applicants", {
-      credentials: "include",
-    });
-    
-    console.log("API Response status:", res.status);
-    
-    if (!res.ok) {
-      const errorText = await res.text();
-      let errorData = {};
-      try {
-        errorData = JSON.parse(errorText);
-      } catch (e) {
-        // If response is not JSON, use the text as error
-        throw new Error(errorText || `Server error: ${res.status}`);
-      }
-      throw new Error(errorData.error || `Server error: ${res.status}`);
-    }
-    
-    const data = await res.json();
-    console.log("API Response data:", data);
-    
-    if (data.applicants) {
-      setApplicants(data.applicants);
-    } else {
-      throw new Error("Invalid response format from server");
-    }
-  } catch (err) {
-    console.error("Fetch error details:", err);
-    setError(err.message);
-    alert("Error fetching applicants: " + err.message);
-  } finally {
-    setLoading(false);
-  }
-};
-
-// Approve or reject applicant
-const handleApplication = async (applicantId, status) => {
-  try {
-    const res = await fetch("http://localhost:5000/api/auth/approve-applicant", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({ applicantId, status }),
-    });
-
-    // Handle non-JSON responses
-    const responseText = await res.text();
-    let data = {};
-    try {
-      data = JSON.parse(responseText);
-    } catch (e) {
-      throw new Error(responseText || "Invalid JSON response");
-    }
-
-    if (res.ok) {
-      alert(`✅ Applicant ${status} successfully!`);
-      fetchApplicants(); // Refresh the list
-    } else {
-      alert("Failed: " + (data.error || "Unknown error"));
-    }
-  } catch (err) {
-    alert("Error processing application: " + err.message);
-  }
-};
-
-
+  // Fetch applicants
   useEffect(() => {
+    async function fetchApplicants() {
+      try {
+        const res = await fetch("http://localhost:5000/api/auth/applicants");
+        const data = await res.json();
+        if (data.applicants) {
+          // ✅ only show pending
+          setApplicants(data.applicants.filter(app => app.applicationStatus === "pending"));
+        }
+      } catch (err) {
+        console.error("❌ Error fetching applicants:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
     fetchApplicants();
   }, []);
 
+  // Approve / Reject
+  async function handleAction(applicantId, status) {
+    try {
+      const res = await fetch("http://localhost:5000/api/auth/approve-applicant", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ applicantId, status })
+      });
+      const data = await res.json();
+      if (data.message) {
+        alert(data.message);
+        // Remove applicant from list after action
+        setApplicants(prev => prev.filter(app => app._id !== applicantId));
+      }
+    } catch (err) {
+      console.error("❌ Error updating applicant:", err);
+    }
+  }
+
+  // Logout
   const handleLogout = () => {
     alert("✅ Logged out successfully!");
-    navigate("/");
+    navigate("/"); // redirect to homepage
   };
-
-  if (loading) return <div className="content-box"><p>Loading applicants...</p></div>;
 
   return (
     <div className="home-container">
+      {/* Header with logout */}
       <header className="header">
-        <div className="logo">👨‍💼 Admin Dashboard</div>
+        <div className="logo">⚙️ Admin Dashboard</div>
         <button className="btn btn-tertiary" onClick={handleLogout}>
           Logout
         </button>
@@ -100,98 +64,42 @@ const handleApplication = async (applicantId, status) => {
 
       <main className="main-content">
         <div className="content-box">
-          <h1 className="title">Welcome, Admin {user.profile?.fullName} 👋</h1>
-          <p className="subtitle">Manage job applications</p>
+          <h1 className="title">Manage Pending Applications</h1>
 
-          {/* Error Message */}
-          {error && (
-            <div style={{ 
-              background: "#ffebee", 
-              color: "#c62828", 
-              padding: "10px", 
-              borderRadius: "5px", 
-              marginBottom: "20px" 
-            }}>
-              <strong>Error:</strong> {error}
-            </div>
+          {loading && <p>Loading applications...</p>}
+
+          {!loading && applicants.length === 0 && (
+            <p>No pending applications right now ✅</p>
           )}
 
-          {/* Admin Profile */}
-          <div className="profile-card">
-            <p><b>Name:</b> {user.profile?.fullName}</p>
-            <p><b>Email:</b> {user.email}</p>
-            <p><b>Role:</b> {user.role}</p>
-          </div>
+          <div className="doctor-list">
+            {applicants.map(app => (
+              <div key={app._id} className="doctor-card">
+                <h2>{app.profile?.fullName || "Unnamed"}</h2>
+                <p><b>Email:</b> {app.email}</p>
+                <p><b>Role:</b> {app.role}</p>
+                {app.profile?.department && <p><b>Department:</b> {app.profile.department}</p>}
 
-          {/* Applicants List */}
-          <div style={{ marginTop: "30px" }}>
-            <h2>📋 Job Applications</h2>
-            
-            {applicants.length === 0 ? (
-              <p>No pending applications.</p>
-            ) : (
-              <div style={{ marginTop: "20px" }}>
-                {applicants.map((applicant) => (
-                  <div key={applicant._id} style={{
-                    border: "1px solid #ddd",
-                    borderRadius: "8px",
-                    padding: "15px",
-                    marginBottom: "15px",
-                    background: "#f9f9f9"
-                  }}>
-                    <h3>{applicant.profile?.fullName || "No Name"}</h3>
-                    <p><b>Email:</b> {applicant.email}</p>
-                    <p><b>Applied for:</b> {applicant.appliedFor}</p>
-                    <p><b>Status:</b> 
-                      <span style={{ 
-                        color: applicant.applicationStatus === "approved" ? "green" : 
-                               applicant.applicationStatus === "rejected" ? "red" : "orange",
-                        fontWeight: "bold",
-                        marginLeft: "8px"
-                      }}>
-                        {applicant.applicationStatus?.toUpperCase() || "PENDING"}
-                      </span>
-                    </p>
-                    
-                    {applicant.applicationStatus === "pending" && (
-                      <div style={{ marginTop: "10px" }}>
-                        <button 
-                          onClick={() => handleApplication(applicant._id, "approved")}
-                          style={{
-                            background: "#4CAF50",
-                            color: "white",
-                            border: "none",
-                            padding: "8px 15px",
-                            borderRadius: "4px",
-                            marginRight: "10px",
-                            cursor: "pointer"
-                          }}
-                        >
-                          ✅ Approve
-                        </button>
-                        <button 
-                          onClick={() => handleApplication(applicant._id, "rejected")}
-                          style={{
-                            background: "#f44336",
-                            color: "white",
-                            border: "none",
-                            padding: "8px 15px",
-                            borderRadius: "4px",
-                            cursor: "pointer"
-                          }}
-                        >
-                          ❌ Reject
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                ))}
+                <div style={{ marginTop: "10px" }}>
+                  <button
+                    className="btn btn-primary"
+                    onClick={() => handleAction(app._id, "approved")}
+                  >
+                    ✅ Approve
+                  </button>
+                  <button
+                    className="btn btn-tertiary"
+                    style={{ marginLeft: "10px" }}
+                    onClick={() => handleAction(app._id, "rejected")}
+                  >
+                    ❌ Reject
+                  </button>
+                </div>
               </div>
-            )}
+            ))}
           </div>
         </div>
       </main>
     </div>
   );
 }
-
