@@ -1,3 +1,96 @@
+// src/components/Navbar.js
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import "./Navbar.css";
+import { getMe, logoutUser } from "../api/auth";
+
+const Navbar = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [user, setUser] = useState(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    checkAuthStatus();
+  }, []);
+
+  const checkAuthStatus = async () => {
+    try {
+      const res = await getMe();
+      if (res.user) {
+        setUser(res.user);
+      } else {
+        setUser(null);
+      }
+    } catch {
+      setUser(null);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await logoutUser();
+      setUser(null);
+      navigate("/");
+    } catch (err) {
+      console.error("Logout error:", err);
+    }
+  };
+
+  const toggleMenu = () => setIsOpen(!isOpen);
+
+  return (
+    <nav className="navbar">
+      <div className="navbar-logo">🏥 Apex Hospital Management System</div>
+
+      <button className="navbar-toggle" onClick={toggleMenu}>
+        ☰
+      </button>
+      <ul className={`navbar-links ${isOpen ? "active" : ""}`}>
+        {/* Always show Home */}
+        <li>
+          <Link to="/" className="nav-link">
+            Home
+          </Link>
+        </li>
+
+        {user ? (
+          // ✅ When logged in
+          <>
+            <li>
+              <Link to="/dashboard" className="nav-link">
+                Dashboard
+              </Link>
+            </li>
+            <li>
+              <button className="nav-link logout-btn" onClick={handleLogout}>
+                Logout
+              </button>
+            </li>
+          </>
+        ) : (
+          // ✅ When NOT logged in
+          <>
+            <li>
+              <Link to="/login" className="nav-link">
+                Login
+              </Link>
+            </li>
+            <li>
+              <Link to="/register" className="nav-link">
+                Register
+              </Link>
+            </li>
+          </>
+        )}
+      </ul>
+    </nav>
+  );
+};
+
+export default Navbar;
+
+
+/*
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./Navbar.css";
@@ -68,6 +161,8 @@ const Navbar = () => {
 };
 
 export default Navbar;
+
+*/
 
 /*
 import React, { useState, useEffect } from 'react';

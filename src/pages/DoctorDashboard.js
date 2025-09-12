@@ -1,4 +1,111 @@
-import React from "react";
+// src/pages/DoctorDashboard.js
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import "./styles.css";
+
+export default function DoctorDashboard({ user }) {
+  const navigate = useNavigate();
+  const [appointments, setAppointments] = useState([]);
+
+  // Fetch doctor's approved appointments
+  useEffect(() => {
+    async function fetchAppointments() {
+      try {
+        const res = await fetch(
+          `http://localhost:5000/api/appointments/doctor/${user._id}`
+        );
+        const data = await res.json();
+
+        // ✅ Normalize so patientName is always available
+        const formatted = data.map((app) => ({
+          ...app,
+          patientName:
+            app.patientName ||
+            app.patientId?.profile?.fullName ||
+            app.patientId?.email ||
+            "Unknown Patient",
+        }));
+
+        setAppointments(formatted);
+      } catch (err) {
+        console.error("❌ Error fetching doctor appointments:", err);
+      }
+    }
+    fetchAppointments();
+  }, [user._id]);
+
+  const handleLogout = () => {
+    alert("✅ Logged out successfully!");
+    navigate("/");
+  };
+
+  return (
+    <div className="home-container">
+      {/* Header */}
+      <header className="header">
+        <div className="logo">🩺 Doctor Dashboard</div>
+        <button className="btn btn-tertiary" onClick={handleLogout}>
+          Logout
+        </button>
+      </header>
+
+      <main className="main-content">
+        <div className="content-box">
+          <h1 className="title">
+            Welcome, Dr. {user.profile?.fullName || "Doctor"} 👋
+          </h1>
+          <p className="subtitle">Here are your patient appointments</p>
+
+          {/* Doctor Profile */}
+          <div className="profile-card">
+            <p><b>Name:</b> {user.profile?.fullName}</p>
+            <p><b>Department:</b> {user.profile?.department || "N/A"}</p>
+            <p><b>Phone:</b> {user.profile?.phone}</p>
+            <p><b>Email:</b> {user.email}</p>
+            <p><b>Gender:</b> {user.profile?.gender}</p>
+          </div>
+
+          {/* Approved Appointments */}
+          <div className="appointments">
+            <h3>📅 Approved Appointments</h3>
+            {appointments.length === 0 ? (
+              <p>No approved appointments yet.</p>
+            ) : (
+              appointments.map((app) => (
+                <div key={app._id} className="appointment-card">
+                  <p><b>Patient:</b> {app.patientName}</p>
+                  <p><b>Department:</b> {app.department}</p>
+                  <p><b>Status:</b> ✅ {app.status}</p>
+                </div>
+              ))
+            )}
+          </div>
+
+          {/* Notifications */}
+          <div className="notifications">
+            <h3>🔔 Notifications</h3>
+            <ul>
+              {appointments.map((app) => (
+                <li key={app._id}>
+                  🧾 Appointment confirmed with {app.patientName}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+}
+
+
+
+
+
+
+/*  this was commented by Ahbab 
+ 
+
 import { useNavigate } from "react-router-dom";
 import "./styles.css";
 
@@ -45,9 +152,14 @@ export default function DoctorDashboard({ user }) {
     </div>
   );
 }
+ 
+*/
 
 
-/*
+
+
+
+/*   this was commented by musa 
 import React, { useEffect, useState } from "react";
 import { getMe } from "../api/auth";
 import "./styles.css";
