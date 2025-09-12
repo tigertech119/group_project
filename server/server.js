@@ -1,3 +1,4 @@
+// server/server.js
 const express = require("express");
 const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
@@ -27,7 +28,9 @@ app.use("/api/auth", authRoutes);
 app.use("/api/appointments", appointments);
 app.use("/api/prescriptions", prescriptions);
 app.use("/api/doctors", doctors);
-app.use("/api/me", meRoutes);
+
+// 🔑 IMPORTANT: make `/me` accessible at /api/auth/me
+app.use("/api/auth/me", meRoutes);
 
 // ✅ Health check
 app.get("/api/health", (_req, res) => res.json({ ok: true }));
@@ -47,6 +50,7 @@ async function start() {
 }
 
 start();
+
 
 
 /*

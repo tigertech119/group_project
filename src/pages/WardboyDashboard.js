@@ -5,10 +5,16 @@ import "./styles.css";
 export default function WardboyDashboard({ user }) {
   const navigate = useNavigate();
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await fetch("http://localhost:5000/api/auth/logout", {
+      method: "POST",
+      credentials: "include",
+    });
     alert("✅ Logged out successfully!");
     navigate("/");
   };
+
+  if (!user) return <p>Loading...</p>;
 
   return (
     <div className="home-container">
@@ -21,42 +27,17 @@ export default function WardboyDashboard({ user }) {
 
       <main className="main-content">
         <div className="content-box">
-          <h1 className="title">Welcome, {user.profile?.fullName} 👋</h1>
-          <p className="subtitle">Hospital support staff</p>
+          <h1 className="title">Welcome, {user.profile?.fullName || "Wardboy"} 🧹</h1>
 
-          {/* Profile Card */}
-          <div className="profile-card">
-            <p><b>Name:</b> {user.profile?.fullName}</p>
+          <div className="profile-box">
             <p><b>Email:</b> {user.email}</p>
-            <p><b>Role:</b> {user.role}</p>
-            <p><b>Department:</b> Support Services</p>
+            <p><b>Phone:</b> {user.profile?.phone || "N/A"}</p>
+            <p><b>Gender:</b> {user.profile?.gender || "N/A"}</p>
           </div>
 
-          {/* Wardboy Actions */}
-          <div className="button-grid">
-            <button className="action-btn" onClick={() => alert("🧹 Cleaning schedule")}>
-              🧹 Cleaning Duties
-            </button>
-            <button className="action-btn" onClick={() => alert("🛌 Patient room maintenance")}>
-              🛌 Room Maintenance
-            </button>
-            <button className="action-btn" onClick={() => alert("📦 Supply management")}>
-              📦 Supplies
-            </button>
-            <button className="action-btn" onClick={() => alert("🚚 Equipment transport")}>
-              🚚 Equipment
-            </button>
-          </div>
-
-          {/* Tasks */}
-          <div style={{ marginTop: "30px", padding: "20px", background: "#fff3e0", borderRadius: "10px" }}>
-            <h3>✅ Today's Tasks</h3>
-            <ul style={{ textAlign: "left" }}>
-              <li>🧼 Clean patient rooms (1-10)</li>
-              <li>🛏️ Change bed linens (Ward A)</li>
-              <li>📦 Restock supplies (Floor 2)</li>
-              <li>🚚 Transport equipment to OR</li>
-            </ul>
+          <div className="actions">
+            <button className="btn btn-primary">🏥 Assist Doctors</button>
+            <button className="btn btn-tertiary">🧽 Maintain Wards</button>
           </div>
         </div>
       </main>

@@ -1,7 +1,5 @@
 // src/api/auth.js
-// THIS api/auth.js ACTS AS MIDDLEMAN BETWEEN SERVER(server/auth.js) AND REACT APP AND FETCH AND SENT STUFF
-// Use environment variable if available, fallback to localhost:5000
-const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:5000";
+import API_BASE from "./config";
 
 // Helper to handle responses
 async function handleResponse(res) {
@@ -69,16 +67,18 @@ export async function applyJob(data) {
 // ----------------------
 // Get logged-in user
 // ----------------------
+// src/api/auth.js
 export async function getMe() {
   try {
-    const res = await fetch(`${API_BASE}/api/me`, {
-      credentials: "include",
+    const res = await fetch(`${API_BASE}/api/auth/me`, {
+      credentials: "include", // ✅ send cookies (JWT token)
     });
-    return await handleResponse(res);
+    return await handleResponse(res); // ✅ backend always returns { user, userType }
   } catch (err) {
     return { error: "Network error: " + err.message };
   }
 }
+
 
 // ----------------------
 // Logout
@@ -100,38 +100,34 @@ export async function logoutUser() {
 // ----------------------
 export async function resetPassword({ email, code, newPassword }) {
   try {
-    const res = await fetch(`${process.env.REACT_APP_API_BASE}/api/auth/reset-password`, {
+    const res = await fetch(`${API_BASE}/api/auth/reset-password`, {  // ✅ use API_BASE
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({ email, code, newPassword }),
-      credentials: "include"
     });
-    return await res.json();
+    return await handleResponse(res);
   } catch (err) {
-    console.error("Reset password error:", err);
-    return { error: "Network error" };
+    return { error: "Network error: " + err.message };
   }
 }
 
-
 // ----------------------
-// Reset password
+// Forgot password
 // ----------------------
-
 export async function forgotPassword(email) {
   try {
-    const res = await fetch(`${process.env.REACT_APP_API_BASE}/api/auth/forgot-password`, {
+    const res = await fetch(`${API_BASE}/api/auth/forgot-password`, {  // ✅ use API_BASE
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email })
+      credentials: "include",
+      body: JSON.stringify({ email }),
     });
-    return await res.json();
+    return await handleResponse(res);
   } catch (err) {
-    console.error("Forgot password error:", err);
-    return { error: "Network error" };
+    return { error: "Network error: " + err.message };
   }
 }
-
 
 // ----------------------
 // Verify Email
@@ -144,10 +140,21 @@ export async function verifyEmail(data) {
       credentials: "include",
       body: JSON.stringify(data),
     });
-    return await res.json();
+
+    let result;
+    try {
+      result = await res.json(); // try parse JSON
+    } catch {
+      result = { error: "Invalid server response" }; // fallback
+    }
+
+    if (!res.ok) {
+      return { error: result.error || res.statusText || "Verification failed" };
+    }
+
+    return result;
   } catch (err) {
+    console.error("❌ Network error in verifyEmail:", err);
     return { error: "Network error: " + err.message };
   }
 }
-
-

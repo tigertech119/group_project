@@ -1,5 +1,32 @@
 const mongoose = require("mongoose");
 
+const userSchema = new mongoose.Schema({
+  email: { type: String, required: true, unique: true },
+  passwordHash: { type: String, required: true },
+  role: { type: String, default: "admin" }, // 👈 keep for admins
+  profile: {
+    fullName: String,
+    phone: String,
+    gender: String,
+    dob: Date,
+    address: String,
+    blood_group: String,
+    department: String,
+  },
+  isVerified: { type: Boolean, default: false },
+  verificationCode: String,
+  resetCode: String,
+  resetCodeExpires: Date,
+  applicationStatus: { 
+    type: String, 
+    enum: ["draft", "pending", "approved", "rejected"], 
+    default: "draft" 
+  },
+}, { timestamps: true });
+module.exports = mongoose.model("User", userSchema);
+
+/*const mongoose = require("mongoose");
+
 const userSchema = new mongoose.Schema(
   {
     email: { type: String, required: true, unique: true },
@@ -38,8 +65,8 @@ const userSchema = new mongoose.Schema(
 );
 
 module.exports = mongoose.model("User", userSchema);
-
-
+*/
+//------------------------------------------------------------------
 /*
 const mongoose = require("mongoose");
 
