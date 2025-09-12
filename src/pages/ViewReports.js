@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const ViewReports = () => {
   const [reportId, setReportId] = useState("");
@@ -9,14 +9,14 @@ const ViewReports = () => {
 
   const handleSearch = () => {
     if (reportId === "12345") {
-      setMessage("✅ Report is ready!");
+      setMessage("  Report is ready!");
       setReport({
         patientName: "John Doe",
         age: 45,
         test: "Blood Test",
         result: "Normal",
         doctor: "Dr. Smith",
-        date: "2025-09-04"
+        date: "2025-09-04",
       });
     } else {
       setMessage("⏳ Report not ready yet.");
@@ -25,9 +25,15 @@ const ViewReports = () => {
   };
 
   return (
-    <div className="home-container" style={{ padding: "40px", textAlign: "center" }}>
+    <div
+      className="home-container"
+      style={{ padding: "40px", textAlign: "center" }}
+    >
       <main className="main-content">
-        <div className="content-box" style={{ maxWidth: "600px", margin: "0 auto" }}>
+        <div
+          className="content-box"
+          style={{ maxWidth: "600px", margin: "0 auto" }}
+        >
           <h1 className="title">Hospital Reports</h1>
           <p>Enter your Report ID to check status</p>
 
@@ -56,25 +62,35 @@ const ViewReports = () => {
                 border: "1px solid #ccc",
                 borderRadius: "8px",
                 textAlign: "left",
-                background: "#f9f9f9"
+                background: "#f9f9f9",
               }}
             >
               <h3>📄 Report Details</h3>
-              <p><b>Patient:</b> {report.patientName} ({report.age} yrs)</p>
-              <p><b>Test:</b> {report.test}</p>
-              <p><b>Result:</b> {report.result}</p>
-              <p><b>Doctor:</b> {report.doctor}</p>
-              <p><b>Date:</b> {report.date}</p>
+              <p>
+                <b>Patient:</b> {report.patientName} ({report.age} yrs)
+              </p>
+              <p>
+                <b>Test:</b> {report.test}
+              </p>
+              <p>
+                <b>Result:</b> {report.result}
+              </p>
+              <p>
+                <b>Doctor:</b> {report.doctor}
+              </p>
+              <p>
+                <b>Date:</b> {report.date}
+              </p>
             </div>
           )}
 
           {/* Back Button */}
-          <button 
-            className="btn btn-tertiary" 
-            onClick={() => navigate('/')}
+          <button
+            className="btn btn-tertiary"
+            onClick={() => navigate(-1)} //  go back  
             style={{ marginTop: "30px" }}
           >
-            Back to Home
+            🔙 Back
           </button>
         </div>
       </main>
