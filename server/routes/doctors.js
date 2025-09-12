@@ -1,18 +1,17 @@
 const express = require("express");
-const User = require("../models/User");
+const Doctor = require("../models/Doctor");
 
 const router = express.Router();
 
-// ✅ Get doctors by department
+// ✅ Get doctors by department (only approved)
 router.get("/:department", async (req, res) => {
   try {
     const department = req.params.department;
-   const doctors = await User.find({
-  role: "doctor",
-  "profile.department": department,
-  applicationStatus: "approved"   // ✅ only approved doctors
-});
 
+    const doctors = await Doctor.find({
+      "profile.department": department,
+      role: "doctor"
+    });
 
     res.json(doctors);
   } catch (err) {

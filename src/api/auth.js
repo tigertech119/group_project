@@ -141,20 +141,25 @@ export async function verifyEmail(data) {
       body: JSON.stringify(data),
     });
 
+    // ✅ Always read text first
+    const text = await res.text();
+
     let result;
     try {
-      result = await res.json(); // try parse JSON
+      result = JSON.parse(text); // try parse JSON
     } catch {
-      result = { error: "Invalid server response" }; // fallback
+      return { error: `Invalid server response (status ${res.status}): ${text.slice(0, 50)}` };
     }
 
     if (!res.ok) {
-      return { error: result.error || res.statusText || "Verification failed" };
+      return { error: result.error || `Verification failed (status ${res.status})` };
     }
 
-    return result;
+    return result; // ✅ { message: "..."} from backend
   } catch (err) {
     console.error("❌ Network error in verifyEmail:", err);
     return { error: "Network error: " + err.message };
   }
 }
+
+

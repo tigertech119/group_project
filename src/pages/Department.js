@@ -17,6 +17,12 @@ export default function Department() {
     { label: "🦷 Dentistry", value: "Dentistry" },
   ];
 
+  // ✅ Later this can check auth and show popup if user is not logged in
+  const handleNavigate = (depValue) => {
+    // Send to doctors page for that department
+    navigate(`/doctors/${depValue}`);
+  };
+
   return (
     <div className="home-container">
       <main className="main-content">
@@ -26,7 +32,7 @@ export default function Department() {
             {departments.map((dep) => (
               <li
                 key={dep.value}
-                onClick={() => navigate(`/doctors/${dep.value}`)} // ✅ clean value used in route
+                onClick={() => handleNavigate(dep.value)}
                 style={{ cursor: "pointer", margin: "10px 0" }}
               >
                 {dep.label}

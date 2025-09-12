@@ -2,12 +2,24 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import "./styles.css";
+import { getMe } from "../api/auth"; // ✅ check logged-in user
 
 export default function DoctorsByDepartment() {
   const { department } = useParams();
   const [doctors, setDoctors] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(null);
 
+  // ✅ Check logged-in user
+  useEffect(() => {
+    async function fetchUser() {
+      const res = await getMe();
+      if (res.user) setUser(res.user);
+    }
+    fetchUser();
+  }, []);
+
+  // ✅ Fetch doctors by department
   useEffect(() => {
     async function fetchDoctors() {
       try {
@@ -22,6 +34,36 @@ export default function DoctorsByDepartment() {
     }
     fetchDoctors();
   }, [department]);
+
+  // ✅ Book appointment handler
+  async function handleBook(doctorId) {
+    if (!user) {
+      alert("⚠️ Please login first to book an appointment");
+      return;
+    }
+
+    try {
+      const res = await fetch("http://localhost:5000/api/appointments/request", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          patientId: user._id,
+          doctorId,
+          department,
+        }),
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        alert("✅ Appointment request sent to IT Worker for approval");
+      } else {
+        alert("❌ " + (data.error || "Booking failed"));
+      }
+    } catch (err) {
+      alert("❌ Network error: " + err.message);
+    }
+  }
 
   return (
     <div className="home-container">
@@ -43,9 +85,9 @@ export default function DoctorsByDepartment() {
                 <p><b>Gender:</b> {doc.profile?.gender || "N/A"}</p>
                 <button
                   className="btn btn-primary"
-                  onClick={() => alert("Booking feature coming soon!")}
+                  onClick={() => handleBook(doc._id)}
                 >
-                  Book Appointment
+                  📅 Book Appointment
                 </button>
               </div>
             ))}
