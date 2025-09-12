@@ -1,6 +1,9 @@
+// src/pages/PatientDashboard.js
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./styles.css";
+import { getPatientAppointments } from "../api/appointment";
+
 
 export default function PatientDashboard({ user }) {
   const navigate = useNavigate();
@@ -9,9 +12,14 @@ export default function PatientDashboard({ user }) {
   // Fetch patient appointments
   useEffect(() => {
     async function fetchAppointments() {
-      const res = await fetch(`http://localhost:5000/api/appointments/patient/${user._id}`);
-      const data = await res.json();
-      setAppointments(data);
+      try {
+        const res = await getPatientAppointments(user._id);
+        if (!res.error) {
+          setAppointments(res);
+        }
+      } catch (err) {
+        console.error("❌ Error fetching appointments:", err);
+      }
     }
     fetchAppointments();
   }, [user._id]);
@@ -58,7 +66,7 @@ export default function PatientDashboard({ user }) {
           <div className="button-grid">
             <button
               className="action-btn"
-              onClick={() => navigate("/departments")} // ✅ route to department page
+              onClick={() => navigate("/departments")}
             >
               📅 Book Appointment
             </button>
@@ -109,8 +117,8 @@ export default function PatientDashboard({ user }) {
             ) : (
               appointments.map((app) => (
                 <div key={app._id} className="appointment-card">
-                  <p><b>Doctor:</b> {app.doctorName || app.doctorId}</p>
-                  <p><b>Date:</b> {app.date} at {app.time}</p>
+                  <p><b>Doctor:</b> {app.doctorName || "Unknown Doctor"}</p>
+                  <p><b>Department:</b> {app.department}</p>
                   <p><b>Status:</b> {app.status}</p>
                 </div>
               ))
@@ -121,8 +129,13 @@ export default function PatientDashboard({ user }) {
           <div className="notifications">
             <h3>🔔 Notifications</h3>
             <ul>
-              <li>🩺 Your annual checkup is scheduled for Sept 20, 2025</li>
-              <li>💊 New prescription ready for pickup</li>
+              {appointments
+                .filter((app) => app.status === "approved")
+                .map((app) => (
+                  <li key={app._id}>
+                    🧾 Appointment confirmed with Dr. {app.doctorName}
+                  </li>
+                ))}
             </ul>
           </div>
         </div>
