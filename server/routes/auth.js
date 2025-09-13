@@ -364,4 +364,164 @@ router.post("/logout", (_req, res) => {
   return res.json({ ok: true });
 });
 
+// ==========================
+// FORGOT PASSWORD
+// ==========================
+router.post("/forgot-password", async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ error: "Email is required" });
+
+    const emailLower = email.trim().toLowerCase();
+
+    // Find user in all collections
+    const results = await Promise.all([
+      Applicant.findOne({ email: emailLower }),
+      Patient.findOne({ email: emailLower }),
+      Doctor.findOne({ email: emailLower }),
+      Nurse.findOne({ email: emailLower }),
+      ITWorker.findOne({ email: emailLower }),
+      Wardboy.findOne({ email: emailLower }),
+      User.findOne({ email: emailLower }) // admin
+    ]);
+
+    const user = results.find(Boolean);
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    // generate reset code
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    user.resetCode = code;
+    user.resetCodeExpires = Date.now() + 15 * 60 * 1000; // valid 15 mins
+    await user.save();
+
+    await transporter.sendMail({
+      from: `"Apex Hospital" <${process.env.EMAIL_USER}>`,
+      to: emailLower,
+      subject: "Password Reset - Apex Hospital",
+      html: `<p>Hello,</p>
+             <p>Use the code below to reset your password (valid 15 minutes):</p>
+             <h2>${code}</h2>`
+    });
+
+    return res.json({ message: "Reset code sent to email" });
+  } catch (err) {
+    console.error("[FORGOT PASSWORD ERROR]", err);
+    return res.status(500).json({ error: "Server error while requesting password reset" });
+  }
+});
+
+// ==========================
+// RESET PASSWORD
+// ==========================
+router.post("/reset-password", async (req, res) => {
+  try {
+    const { email, code, newPassword } = req.body;
+    if (!email || !code || !newPassword) {
+      return res.status(400).json({ error: "Email, code and new password are required" });
+    }
+
+    const emailLower = email.trim().toLowerCase();
+
+    // Find user in all collections
+    const results = await Promise.all([
+      Applicant.findOne({ email: emailLower }),
+      Patient.findOne({ email: emailLower }),
+      Doctor.findOne({ email: emailLower }),
+      Nurse.findOne({ email: emailLower }),
+      ITWorker.findOne({ email: emailLower }),
+      Wardboy.findOne({ email: emailLower }),
+      User.findOne({ email: emailLower })
+    ]);
+
+    const user = results.find(Boolean);
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    // validate code
+    if (!user.resetCode || user.resetCode !== code) {
+      return res.status(400).json({ error: "Invalid or expired reset code" });
+    }
+    if (user.resetCodeExpires && Date.now() > user.resetCodeExpires) {
+      return res.status(400).json({ error: "Reset code expired" });
+    }
+
+    // update password
+    const passwordHash = await bcrypt.hash(newPassword, 10);
+    user.passwordHash = passwordHash;
+    user.resetCode = undefined;
+    user.resetCodeExpires = undefined;
+    await user.save();
+
+    return res.json({ message: "Password reset successful" });
+  } catch (err) {
+    console.error("[RESET PASSWORD ERROR]", err);
+    return res.status(500).json({ error: "Server error while resetting password" });
+  }
+});
+
+
+
+// ==========================
+// RESET PASSWORD
+// ==========================
+router.post("/reset-password", async (req, res) => {
+  try {
+    const { email, code, newPassword } = req.body;
+
+    console.log("RESET PASSWORD ROUTE HIT", req.body); // debug
+
+    // basic required fields
+    if (!email || !code || !newPassword) {
+      return res.status(400).json({ error: "Email, code and new password are required" });
+    }
+
+    // ✅ Validate length
+    if (newPassword.length < 6) {
+      return res.status(400).json({ error: "Password must be at least 6 characters long" });
+    }
+
+    const emailLower = email.trim().toLowerCase();
+
+    const results = await Promise.all([
+      Applicant.findOne({ email: emailLower }),
+      Patient.findOne({ email: emailLower }),
+      Doctor.findOne({ email: emailLower }),
+      Nurse.findOne({ email: emailLower }),
+      ITWorker.findOne({ email: emailLower }),
+      Wardboy.findOne({ email: emailLower }),
+      User.findOne({ email: emailLower })
+    ]);
+
+    const user = results.find(Boolean);
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    if (!user.resetCode || user.resetCode !== code) {
+      return res.status(400).json({ error: "Invalid or expired reset code" });
+    }
+    if (user.resetCodeExpires && Date.now() > user.resetCodeExpires) {
+      return res.status(400).json({ error: "Reset code expired" });
+    }
+
+    // ✅ Check if same as old password
+    const isSame = await bcrypt.compare(newPassword, user.passwordHash);
+    if (isSame) {
+      return res.status(400).json({ error: "New password must be different from the old password" });
+    }
+
+    // Only now hash & save
+    user.passwordHash = await bcrypt.hash(newPassword, 10);
+    user.resetCode = undefined;
+    user.resetCodeExpires = undefined;
+    await user.save();
+
+    return res.json({ message: "Password reset successful" });
+  } catch (err) {
+    console.error("[RESET PASSWORD ERROR]", err);
+    return res.status(500).json({ error: "Server error while resetting password" });
+  }
+});
+
+
+
+
+
 module.exports = router;
