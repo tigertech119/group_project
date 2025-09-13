@@ -14,7 +14,7 @@ import ResetPassword from "./pages/ResetPassword";
 import ForgotPassword from "./pages/ForgotPassword";
 import VerifyEmail from "./pages/VerifyEmail";
 import DoctorsByDepartment from "./pages/DoctorsByDepartment";
-
+import MyRecords from "./pages/MyRecords";
 
 
 function App() {
@@ -30,6 +30,7 @@ function App() {
         <Route path="/about" element={<About />} />
         <Route path="/departments" element={<Department />} />
         <Route path="/apply-jobs" element={<ApplyJobs />} />
+        <Route path="/my-records" element={<MyRecords />} />
         <Route path="/view-reports" element={<ViewReports />} />
         <Route path="/prescriptions" element={<Prescriptions />} />
         <Route path="/account-settings" element={<AccountSettings />} />
