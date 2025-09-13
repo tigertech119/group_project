@@ -4,7 +4,7 @@ const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const records = require("./routes/records");
-const recordsRoutes = require("./routes/records");
+//const recordsRoutes = require("./routes/records");
 
 require("dotenv").config();
 
@@ -31,7 +31,7 @@ app.use("/api/appointments", appointments);
 app.use("/api/prescriptions", prescriptions);
 app.use("/api/doctors", doctors);
 app.use("/api/records", records);
-app.use("/api/records", recordsRoutes);
+//app.use("/api/records", recordsRoutes);
 
 // 🔑 IMPORTANT: make `/me` accessible at /api/auth/me
 app.use("/api/auth/me", meRoutes);

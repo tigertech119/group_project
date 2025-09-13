@@ -71,6 +71,9 @@ export default function PatientDashboard({ user }) {
             <button className="action-btn" onClick={() => navigate("/account-settings")}>
               ⚙️ Account Settings
             </button>
+            <button className="action-btn"  onClick={() => navigate("/my-records")}
+>             🗒️ Doctor Notes
+            </button>
           </div>
           {/* Appointments */}
 <div className="appointments">
