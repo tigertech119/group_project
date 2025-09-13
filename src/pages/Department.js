@@ -6,7 +6,6 @@ import "./styles.css";
 export default function Department() {
   const navigate = useNavigate();
 
-  // ✅ Store label (with emoji) and value (clean name for API & URL)
   const departments = [
     { label: "🫀 Cardiology", value: "Cardiology" },
     { label: "🧠 Neurology", value: "Neurology" },
@@ -17,9 +16,7 @@ export default function Department() {
     { label: "🦷 Dentistry", value: "Dentistry" },
   ];
 
-  // ✅ Later this can check auth and show popup if user is not logged in
   const handleNavigate = (depValue) => {
-    // Send to doctors page for that department
     navigate(`/doctors/${depValue}`);
   };
 
@@ -39,8 +36,18 @@ export default function Department() {
               </li>
             ))}
           </ul>
+
+          {/* ✅ Back button styled same as ApplyJob.js */}
+          <button
+            className="about-btn"
+            onClick={() => navigate("/")}
+            style={{ background: "linear-gradient(45deg, #6c757d, #5a6268)" }}
+          >
+            Back
+          </button>
         </div>
       </main>
     </div>
   );
 }
+

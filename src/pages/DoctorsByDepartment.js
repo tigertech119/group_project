@@ -1,16 +1,19 @@
 // src/pages/DoctorsByDepartment.js
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import "./styles.css";
-import { getMe } from "../api/auth"; // ✅ check logged-in user
+import { getMe } from "../api/auth";
+import { requestAppointment } from "../api/appointment.js";
 
 export default function DoctorsByDepartment() {
   const { department } = useParams();
+  const navigate = useNavigate();
+
   const [doctors, setDoctors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
 
-  // ✅ Check logged-in user
+  // Check logged-in user
   useEffect(() => {
     async function fetchUser() {
       const res = await getMe();
@@ -19,9 +22,9 @@ export default function DoctorsByDepartment() {
     fetchUser();
   }, []);
 
-  // ✅ Fetch doctors by department
+  // Fetch doctors by department
   useEffect(() => {
-    async function fetchDoctors() {
+    async function fetchDocs() {
       try {
         const res = await fetch(`http://localhost:5000/api/doctors/${department}`);
         const data = await res.json();
@@ -32,36 +35,21 @@ export default function DoctorsByDepartment() {
         setLoading(false);
       }
     }
-    fetchDoctors();
+    fetchDocs();
   }, [department]);
 
-  // ✅ Book appointment handler
+  // Book appointment (no requested date/time; IT worker will set schedule)
   async function handleBook(doctorId) {
     if (!user) {
       alert("⚠️ Please login first to book an appointment");
       return;
     }
 
-    try {
-      const res = await fetch("http://localhost:5000/api/appointments/request", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({
-          patientId: user._id,
-          doctorId,
-          department,
-        }),
-      });
-
-      const data = await res.json();
-      if (res.ok) {
-        alert("✅ Appointment request sent to IT Worker for approval");
-      } else {
-        alert("❌ " + (data.error || "Booking failed"));
-      }
-    } catch (err) {
-      alert("❌ Network error: " + err.message);
+    const res = await requestAppointment(user._id, doctorId, department);
+    if (res.error) {
+      alert("❌ " + res.error);
+    } else {
+      alert("✅ Request sent. IT worker will schedule your time.");
     }
   }
 
@@ -92,8 +80,17 @@ export default function DoctorsByDepartment() {
               </div>
             ))}
           </div>
+
+          <button
+            className="about-btn"
+            onClick={() => navigate("/departments")}
+            style={{ background: "linear-gradient(45deg, #6c757d, #5a6268)", marginTop: "20px" }}
+          >
+            ← Back
+          </button>
         </div>
       </main>
     </div>
   );
 }
+

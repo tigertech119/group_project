@@ -1,5 +1,6 @@
 // src/pages/Register.js
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom"; // ✅ Added
 import { registerUser } from "../api/auth";
 
 const Register = () => {
@@ -16,6 +17,7 @@ const Register = () => {
   });
   const [code, setCode] = useState("");
   const [email, setEmail] = useState("");
+  const navigate = useNavigate(); // ✅ Added
 
   const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -34,7 +36,7 @@ const Register = () => {
           ? new Date().setFullYear(new Date().getFullYear() - formData.age)
           : null,
         address: formData.address,
-        blood_group: formData.blood_group, 
+        blood_group: formData.blood_group,
       },
     };
 
@@ -73,113 +75,130 @@ const Register = () => {
           <h1 className="title">Patient Registration</h1>
 
           {step === 1 && (
-            <form onSubmit={handleSubmit} style={{ textAlign: "left" }}>
-              <div className="form-group">
-                <label>Full Name:</label>
-                <input
-                  name="fullName"
-                  required
-                  value={formData.fullName}
-                  onChange={handleChange}
-                />
-              </div>
-              <div className="form-group">
-                <label>Phone:</label>
-                <input
-                  name="phone"
-                  type="tel"
-                  required
-                  value={formData.phone}
-                  onChange={handleChange}
-                />
-              </div>
-              <div className="form-group">
-                <label>Email:</label>
-                <input
-                  name="email"
-                  type="email"
-                  required
-                  value={formData.email}
-                  onChange={handleChange}
-                />
-              </div>
-              <div className="form-group">
-                <label>Password:</label>
-                <input
-                  name="password"
-                  type="password"
-                  required
-                  minLength="6"
-                  value={formData.password}
-                  onChange={handleChange}
-                />
-              </div>
-              <div className="form-group">
-                <label>Sex:</label>
-                <select
-                  name="sex"
-                  required
-                  value={formData.sex}
-                  onChange={handleChange}
-                >
-                  <option value="">Select</option>
-                  <option value="male">Male</option>
-                  <option value="female">Female</option>
-                  <option value="other">Other</option>
-                </select>
-              </div>
-              <div className="form-group">
-                <label>Age:</label>
-                <input
-                  name="age"
-                  type="number"
-                  required
-                  value={formData.age}
-                  onChange={handleChange}
-                />
-              </div>
-              <div className="form-group">
-                <label>Address:</label>
-                <textarea
-                  name="address"
-                  required
-                  value={formData.address}
-                  onChange={handleChange}
-                />
-              </div>
-              <div className="form-group">
-                <label>Blood Group:</label>
-                <select
-                  name="blood_group"
-                  required
-                  value={formData.blood_group}
-                  onChange={handleChange}
-                >
-                  <option value="">--Select--</option>
-                  <option value="A+">A+</option>
-                  <option value="A-">A-</option>
-                  <option value="B+">B+</option>
-                  <option value="B-">B-</option>
-                  <option value="O+">O+</option>
-                  <option value="O-">O-</option>
-                  <option value="AB+">AB+</option>
-                  <option value="AB-">AB-</option>
-                </select>
-              </div>
+            <>
+              <form onSubmit={handleSubmit} style={{ textAlign: "left" }}>
+                <div className="form-group">
+                  <label>Full Name:</label>
+                  <input
+                    name="fullName"
+                    required
+                    value={formData.fullName}
+                    onChange={handleChange}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Phone:</label>
+                  <input
+                    name="phone"
+                    type="tel"
+                    required
+                    value={formData.phone}
+                    onChange={handleChange}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Email:</label>
+                  <input
+                    name="email"
+                    type="email"
+                    required
+                    value={formData.email}
+                    onChange={handleChange}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Password:</label>
+                  <input
+                    name="password"
+                    type="password"
+                    required
+                    minLength="6"
+                    value={formData.password}
+                    onChange={handleChange}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Sex:</label>
+                  <select
+                    name="sex"
+                    required
+                    value={formData.sex}
+                    onChange={handleChange}
+                  >
+                    <option value="">Select</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label>Age:</label>
+                  <input
+                    name="age"
+                    type="number"
+                    required
+                    value={formData.age}
+                    onChange={handleChange}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Address:</label>
+                  <textarea
+                    name="address"
+                    required
+                    value={formData.address}
+                    onChange={handleChange}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Blood Group:</label>
+                  <select
+                    name="blood_group"
+                    required
+                    value={formData.blood_group}
+                    onChange={handleChange}
+                  >
+                    <option value="">--Select--</option>
+                    <option value="A+">A+</option>
+                    <option value="A-">A-</option>
+                    <option value="B+">B+</option>
+                    <option value="B-">B-</option>
+                    <option value="O+">O+</option>
+                    <option value="O-">O-</option>
+                    <option value="AB+">AB+</option>
+                    <option value="AB-">AB-</option>
+                  </select>
+                </div>
 
+                {/* ... inside step === 1 form ... */}
+                <div style={{ textAlign: "center", marginTop: "20px" }}>
+                  <button className="btn btn-primary" type="submit">
+                    Submit
+                  </button>
+                </div>
 
+              </form>
 
-
-              <button className="btn btn-primary" type="submit">
-                Submit
+              {}
+              <button
+                className="about-btn"
+                onClick={() => navigate("/")}
+                style={{
+                  background: "linear-gradient(45deg, #6c757d, #5a6268)",
+                  marginTop: "20px",
+                }}
+              >
+                Back
               </button>
-            </form>
+            </>
           )}
 
           {step === 2 && (
             <form onSubmit={handleVerify}>
               <h2>Verify Your Email</h2>
-              <p>Enter the code sent to <b>{email}</b></p>
+              <p>
+                Enter the code sent to <b>{email}</b>
+              </p>
               <input
                 type="text"
                 value={code}
@@ -188,6 +207,19 @@ const Register = () => {
               />
               <button className="btn btn-primary" type="submit">
                 Verify
+              </button>
+
+              {}
+              <button
+                className="about-btn"
+                onClick={() => setStep(1)}
+                style={{
+                  background: "linear-gradient(45deg, #6c757d, #5a6268)",
+                  marginTop: "20px",
+                  marginLeft: "10px",
+                }}
+              >
+                ← Back
               </button>
             </form>
           )}

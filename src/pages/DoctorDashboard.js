@@ -54,7 +54,7 @@ export default function DoctorDashboard({ user }) {
           <h1 className="title">
             Welcome, Dr. {user.profile?.fullName || "Doctor"} 👋
           </h1>
-          <p className="subtitle">Here are your patient appointments</p>
+          
 
           {/* Doctor Profile */}
           <div className="profile-card">
@@ -64,22 +64,31 @@ export default function DoctorDashboard({ user }) {
             <p><b>Email:</b> {user.email}</p>
             <p><b>Gender:</b> {user.profile?.gender}</p>
           </div>
+          <p className="subtitle">Here are your patient appointments</p>
+          
 
           {/* Approved Appointments */}
-          <div className="appointments">
-            <h3>📅 Approved Appointments</h3>
-            {appointments.length === 0 ? (
-              <p>No approved appointments yet.</p>
-            ) : (
-              appointments.map((app) => (
-                <div key={app._id} className="appointment-card">
-                  <p><b>Patient:</b> {app.patientName}</p>
-                  <p><b>Department:</b> {app.department}</p>
-                  <p><b>Status:</b> ✅ {app.status}</p>
-                </div>
-              ))
-            )}
-          </div>
+<div className="appointments">
+  <h3>📅 Approved Appointments</h3>
+  {appointments.length === 0 ? (
+    <p>No approved appointments yet.</p>
+  ) : (
+    appointments
+      .filter(app => app.status === "approved" || app.status === "rescheduled")
+      .map(app => (
+        <div key={app._id} className="appointment-card">
+          <p><b>Patient:</b> {app.patientName || "Unknown"}</p>
+          <p><b>Department:</b> {app.department}</p>
+          <p>
+            <b>Status:</b> {app.status === "approved" ? "✅ approved" : "🔁 rescheduled"}
+          </p>
+          <p><b>Scheduled:</b> {app.scheduledDate ? `${app.scheduledDate} ${app.scheduledTime || ""}` : "—"}</p>
+        </div>
+      ))
+  )}
+</div>
+
+
 
           {/* Notifications */}
           <div className="notifications">

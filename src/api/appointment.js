@@ -1,28 +1,22 @@
 // src/api/appointments.js
 import API_BASE from "./config";
 
-// Helper to handle responses
+// Generic response helper
 async function handleResponse(res) {
   let data;
-  try {
-    data = await res.json();
-  } catch {
-    return { error: "Invalid server response" };
-  }
+  try { data = await res.json(); } catch { return { error: "Invalid server response" }; }
   if (!res.ok) return { error: data.error || "Request failed" };
   return data;
 }
 
-// ----------------------
-// Request appointment (Patient)
-// ----------------------
-export async function requestAppointment(patientId, doctorId, department) {
+// Patient: create request (now supports optional date/time)
+export async function requestAppointment(patientId, doctorId, department, date = "", time = "") {
   try {
     const res = await fetch(`${API_BASE}/api/appointments/request`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
-      body: JSON.stringify({ patientId, doctorId, department }),
+      body: JSON.stringify({ patientId, doctorId, department, date, time }),
     });
     return await handleResponse(res);
   } catch (err) {
@@ -30,9 +24,7 @@ export async function requestAppointment(patientId, doctorId, department) {
   }
 }
 
-// ----------------------
-// Get all pending (IT Worker)
-// ----------------------
+// IT Worker: list pending
 export async function getPendingAppointments() {
   try {
     const res = await fetch(`${API_BASE}/api/appointments/pending`, {
@@ -45,15 +37,32 @@ export async function getPendingAppointments() {
 }
 
 // ----------------------
-// Approve or Reject (IT Worker)
+// Approve / Reject / Reschedule (IT Worker) — supports optional fields
 // ----------------------
-export async function updateAppointmentStatus(appointmentId, status) {
+// src/api/appointment.js
+/*
+export async function updateAppointmentStatus(appointmentId, status, extra = {}) {
   try {
     const res = await fetch(`${API_BASE}/api/appointments/${appointmentId}/update`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
-      body: JSON.stringify({ status }), // status = "approved" / "rejected"
+      body: JSON.stringify({ status, ...extra }),
+    });
+    return await handleResponse(res);
+  } catch (err) {
+    return { error: "Network error: " + err.message };
+  }
+}
+*/
+// src/api/appointment.js
+export async function updateAppointmentStatus(appointmentId, status, extra = {}) {
+  try {
+    const res = await fetch(`${API_BASE}/api/appointments/${appointmentId}/update`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ status, ...extra }), // <- include scheduledDate/Time when provided
     });
     return await handleResponse(res);
   } catch (err) {
@@ -61,9 +70,8 @@ export async function updateAppointmentStatus(appointmentId, status) {
   }
 }
 
-// ----------------------
-// Get appointments for a Patient
-// ----------------------
+
+// Patient view
 export async function getPatientAppointments(patientId) {
   try {
     const res = await fetch(`${API_BASE}/api/appointments/patient/${patientId}`, {
@@ -75,9 +83,7 @@ export async function getPatientAppointments(patientId) {
   }
 }
 
-// ----------------------
-// Get appointments for a Doctor
-// ----------------------
+// Doctor view
 export async function getDoctorAppointments(doctorId) {
   try {
     const res = await fetch(`${API_BASE}/api/appointments/doctor/${doctorId}`, {
@@ -88,3 +94,4 @@ export async function getDoctorAppointments(doctorId) {
     return { error: "Network error: " + err.message };
   }
 }
+

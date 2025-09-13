@@ -51,6 +51,7 @@ const ViewReports = () => {
           >
             Search
           </button>
+          
 
           {message && <p style={{ marginTop: "20px" }}>{message}</p>}
 
@@ -84,13 +85,12 @@ const ViewReports = () => {
             </div>
           )}
 
-          {/* Back Button */}
-          <button
-            className="btn btn-tertiary"
-            onClick={() => navigate(-1)} //  go back  
-            style={{ marginTop: "30px" }}
+          <button 
+            className="about-btn" 
+            onClick={() => navigate('/')}
+            style={{ background: 'linear-gradient(45deg, #6c757d, #5a6268)' }}
           >
-            🔙 Back
+            Back
           </button>
         </div>
       </main>

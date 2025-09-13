@@ -2,21 +2,19 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./styles.css";
-import { getPatientAppointments } from "../api/appointment";
-
 
 export default function PatientDashboard({ user }) {
   const navigate = useNavigate();
   const [appointments, setAppointments] = useState([]);
 
-  // Fetch patient appointments
   useEffect(() => {
     async function fetchAppointments() {
       try {
-        const res = await getPatientAppointments(user._id);
-        if (!res.error) {
-          setAppointments(res);
-        }
+        const res = await fetch(`http://localhost:5000/api/appointments/patient/${user._id}`, {
+          credentials: "include",
+        });
+        const data = await res.json();
+        setAppointments(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error("❌ Error fetching appointments:", err);
       }
@@ -40,21 +38,12 @@ export default function PatientDashboard({ user }) {
 
       <main className="main-content">
         <div className="content-box">
-          <h1 className="title">
-            Welcome, {user.profile?.fullName || "Patient"} 👋
-          </h1>
+          <h1 className="title">Welcome, {user.profile?.fullName || "Patient"} 👋</h1>
           <p className="subtitle">Manage your healthcare easily</p>
 
-          {/* Profile Card */}
-          <div className="profile-card">
+          {/* Profile */}
+          <div className="profile-card" style={{ textAlign: "left" }}>
             <p><b>Name:</b> {user.profile?.fullName}</p>
-            <p>
-              <b>Age:</b>{" "}
-              {user.profile?.dob
-                ? new Date().getFullYear() -
-                  new Date(user.profile.dob).getFullYear()
-                : "N/A"}
-            </p>
             <p><b>Gender:</b> {user.profile?.gender}</p>
             <p><b>Phone:</b> {user.profile?.phone}</p>
             <p><b>Email:</b> {user.email}</p>
@@ -64,80 +53,41 @@ export default function PatientDashboard({ user }) {
 
           {/* Actions */}
           <div className="button-grid">
-            <button
-              className="action-btn"
-              onClick={() => navigate("/departments")}
-            >
+            <button className="action-btn" onClick={() => navigate("/departments")}>
               📅 Book Appointment
             </button>
-
-            <button
-              className="action-btn"
-              onClick={() => navigate("/prescriptions")}
-            >
+            <button className="action-btn" onClick={() => navigate("/prescriptions")}>
               💊 View Prescriptions
             </button>
-
-            <button
-              className="action-btn"
-              onClick={() => navigate("/view-reports")}
-            >
+            <button className="action-btn" onClick={() => navigate("/view-reports")}>
               🧾 Medical Reports
             </button>
-
-            <button
-              className="action-btn"
-              onClick={() =>
-                alert("💳 For billing, please visit the hospital accounts office.")
-              }
-            >
+            <button className="action-btn" onClick={() => alert("💳 Please visit hospital accounts office.")}>
               💳 Billing & Payments
             </button>
-
-            <button
-              className="action-btn"
-              onClick={() => alert("💬 Chat service coming soon!")}
-            >
+            <button className="action-btn" onClick={() => alert("💬 Chat service coming soon!")}>
               💬 Chat with Doctor
             </button>
-
-            <button
-              className="action-btn"
-              onClick={() => navigate("/account-settings")}
-            >
+            <button className="action-btn" onClick={() => navigate("/account-settings")}>
               ⚙️ Account Settings
             </button>
           </div>
-
           {/* Appointments */}
-          <div className="appointments">
-            <h3>📅 Your Appointments</h3>
-            {appointments.length === 0 ? (
-              <p>No appointments yet.</p>
-            ) : (
-              appointments.map((app) => (
-                <div key={app._id} className="appointment-card">
-                  <p><b>Doctor:</b> {app.doctorName || "Unknown Doctor"}</p>
-                  <p><b>Department:</b> {app.department}</p>
-                  <p><b>Status:</b> {app.status}</p>
-                </div>
-              ))
-            )}
-          </div>
+<div className="appointments">
+  <h3>📅 Your Appointments</h3>
+  {appointments.length === 0 ? (
+    <p>No appointments yet.</p>
+  ) : (
+    appointments.map((app) => (
+      <div key={app._id} className="appointment-card">
+        <p><b>Doctor:</b> {app.doctorName || "Unknown Doctor"}</p>
+        <p><b>Status:</b> {app.status}</p>
+        <p><b>Scheduled:</b> {app.scheduledDate ? `${app.scheduledDate} ${app.scheduledTime || ""}` : "—"}</p>
+      </div>
+    ))
+  )}
+</div>
 
-          {/* Notifications */}
-          <div className="notifications">
-            <h3>🔔 Notifications</h3>
-            <ul>
-              {appointments
-                .filter((app) => app.status === "approved")
-                .map((app) => (
-                  <li key={app._id}>
-                    🧾 Appointment confirmed with Dr. {app.doctorName}
-                  </li>
-                ))}
-            </ul>
-          </div>
         </div>
       </main>
     </div>

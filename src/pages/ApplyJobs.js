@@ -76,27 +76,45 @@ const handleSubmit = async (e) => {
                   </button>
                 ))}
               </div>
-              <button
-                className="btn btn-tertiary"
-                onClick={() => navigate("/")}
-                style={{ marginTop: "30px" }}
-              >
-                Back to Home
-              </button>
+              <button 
+            className="about-btn" 
+            onClick={() => navigate('/')}
+            style={{ background: 'linear-gradient(45deg, #6c757d, #5a6268)' }}
+          >
+            Back
+          </button>
             </div>
           )}
+
 
           {role && (
             <form onSubmit={handleSubmit} style={{ textAlign: "left" }}>
               <h2>Apply as {role}</h2>
               <button
-                type="button"
-                className="btn btn-tertiary"
-                onClick={() => setRole("")}
-                style={{ marginBottom: "20px" }}
-              >
-                ← Back to Role Selection
-              </button>
+  type="button"
+  onClick={() => setRole("")}
+  style={{
+    marginBottom: "20px",
+    padding: "14px 28px",   // ⬆️ Bigger button size
+    fontSize: "1.1em",
+    border: "none",
+    borderRadius: "6px",
+    color: "white",
+    cursor: "pointer",
+    fontWeight: "500",
+    background: "linear-gradient(45deg, #6c757d, #5a6268)",
+    transition: "background 0.3s ease"
+  }}
+  onMouseOver={(e) =>
+    (e.currentTarget.style.background = "linear-gradient(45deg, #5a6268, #6c757d)")
+  }
+  onMouseOut={(e) =>
+    (e.currentTarget.style.background = "linear-gradient(45deg, #6c757d, #5a6268)")
+  }
+>
+  ← Back to Role Selection
+</button>
+
 
               <div className="form-group">
                 <label>Full Name:</label>
