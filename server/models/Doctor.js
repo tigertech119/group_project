@@ -1,9 +1,9 @@
 const mongoose = require("mongoose");
 
 const doctorSchema = new mongoose.Schema({
-  email: { type: String, required: true, unique: true },
+  email: { type: String, required: true, unique: true, lowercase: true, trim: true },
   passwordHash: { type: String, required: true },
-  role: { type: String, default: "doctor" }, // 👈 added
+  role: { type: String, default: "doctor" },
   profile: {
     fullName: String,
     phone: String,
@@ -18,8 +18,12 @@ const doctorSchema = new mongoose.Schema({
     timeSlots: [String],
   },
   isAvailable: { type: Boolean, default: true },
+  // ✅ for consistent login checks
+  isVerified: { type: Boolean, default: false },
 }, { timestamps: true });
+
 module.exports = mongoose.model("Doctor", doctorSchema);
+
 /*
 const mongoose = require("mongoose");
 

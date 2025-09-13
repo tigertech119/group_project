@@ -1,7 +1,6 @@
-// src/pages/Register.js
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom"; // ✅ Added
-import { registerUser } from "../api/auth";
+import { useNavigate } from "react-router-dom";
+import { registerUser, verifyEmail } from "../api/auth";
 
 const Register = () => {
   const [step, setStep] = useState(1); // 1 = form, 2 = code
@@ -17,7 +16,8 @@ const Register = () => {
   });
   const [code, setCode] = useState("");
   const [email, setEmail] = useState("");
-  const navigate = useNavigate(); // ✅ Added
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -25,6 +25,8 @@ const Register = () => {
   // Step 1: Register user → backend sends code
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+
     const payload = {
       email: formData.email,
       password: formData.password,
@@ -40,31 +42,77 @@ const Register = () => {
       },
     };
 
-    const res = await registerUser(payload);
-    if (res.error) {
-      alert("❌ " + res.error);
-    } else {
-      alert("📩 Verification code sent to email");
-      setEmail(formData.email);
-      setStep(2);
+    try {
+      const res = await registerUser(payload);
+      if (res.error) {
+        alert("❌ " + res.error);
+      } else {
+        alert("📩 Verification code sent to email");
+        setEmail(formData.email);
+        setStep(2);
+      }
+    } catch (err) {
+      alert("❌ Registration failed: " + err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Step 2: Verify code
+  // Step 2: Verify code - ENHANCED VERSION
   const handleVerify = async (e) => {
     e.preventDefault();
+    
+    if (!code || code.length !== 6) {
+      alert("❌ Please enter a valid 6-digit verification code");
+      return;
+    }
+    
+    setLoading(true);
+
     try {
-      const res = await fetch("http://localhost:5000/api/auth/verify-email", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, code }),
-      });
-      const data = await res.json();
-      if (!res.ok) return alert("❌ " + data.error);
-      alert("✅ Email verified! You can now log in.");
-      window.location.href = "/login";
+      const result = await verifyEmail({ email, code });
+      
+      if (result.error) {
+        alert("❌ " + result.error);
+      } else if (result.success || result.verified) {
+        alert("✅ " + (result.message || "Email verified successfully!"));
+        navigate("/login");
+      } else {
+        alert("❌ Unexpected response from server");
+      }
     } catch (err) {
-      alert("❌ " + err.message);
+      alert("❌ Verification failed: " + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Resend verification code
+  const handleResendCode = async () => {
+    if (!email) {
+      alert("❌ Email not found. Please complete registration again.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      // Re-use registration to resend code
+      const payload = {
+        email: email,
+        password: "temporary", // Required field but won't be used for resend
+        profile: { fullName: "User" } // Minimal profile data
+      };
+
+      const res = await registerUser(payload);
+      if (res.error) {
+        alert("❌ " + res.error);
+      } else {
+        alert("📩 New verification code sent to your email");
+      }
+    } catch (err) {
+      alert("❌ Failed to resend code: " + err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -84,6 +132,7 @@ const Register = () => {
                     required
                     value={formData.fullName}
                     onChange={handleChange}
+                    disabled={loading}
                   />
                 </div>
                 <div className="form-group">
@@ -94,6 +143,7 @@ const Register = () => {
                     required
                     value={formData.phone}
                     onChange={handleChange}
+                    disabled={loading}
                   />
                 </div>
                 <div className="form-group">
@@ -104,6 +154,7 @@ const Register = () => {
                     required
                     value={formData.email}
                     onChange={handleChange}
+                    disabled={loading}
                   />
                 </div>
                 <div className="form-group">
@@ -115,6 +166,7 @@ const Register = () => {
                     minLength="6"
                     value={formData.password}
                     onChange={handleChange}
+                    disabled={loading}
                   />
                 </div>
                 <div className="form-group">
@@ -124,6 +176,7 @@ const Register = () => {
                     required
                     value={formData.sex}
                     onChange={handleChange}
+                    disabled={loading}
                   >
                     <option value="">Select</option>
                     <option value="male">Male</option>
@@ -137,8 +190,11 @@ const Register = () => {
                     name="age"
                     type="number"
                     required
+                    min="1"
+                    max="120"
                     value={formData.age}
                     onChange={handleChange}
+                    disabled={loading}
                   />
                 </div>
                 <div className="form-group">
@@ -148,6 +204,7 @@ const Register = () => {
                     required
                     value={formData.address}
                     onChange={handleChange}
+                    disabled={loading}
                   />
                 </div>
                 <div className="form-group">
@@ -157,6 +214,7 @@ const Register = () => {
                     required
                     value={formData.blood_group}
                     onChange={handleChange}
+                    disabled={loading}
                   >
                     <option value="">--Select--</option>
                     <option value="A+">A+</option>
@@ -170,16 +228,17 @@ const Register = () => {
                   </select>
                 </div>
 
-                {/* ... inside step === 1 form ... */}
                 <div style={{ textAlign: "center", marginTop: "20px" }}>
-                  <button className="btn btn-primary" type="submit">
-                    Submit
+                  <button 
+                    className="btn btn-primary" 
+                    type="submit"
+                    disabled={loading}
+                  >
+                    {loading ? "Processing..." : "Submit"}
                   </button>
                 </div>
-
               </form>
 
-              {}
               <button
                 className="about-btn"
                 onClick={() => navigate("/")}
@@ -187,6 +246,7 @@ const Register = () => {
                   background: "linear-gradient(45deg, #6c757d, #5a6268)",
                   marginTop: "20px",
                 }}
+                disabled={loading}
               >
                 Back
               </button>
@@ -199,17 +259,38 @@ const Register = () => {
               <p>
                 Enter the code sent to <b>{email}</b>
               </p>
-              <input
-                type="text"
-                value={code}
-                onChange={(e) => setCode(e.target.value)}
-                required
-              />
-              <button className="btn btn-primary" type="submit">
-                Verify
+              
+              <div className="form-group">
+                <label>Verification Code:</label>
+                <input
+                  type="text"
+                  value={code}
+                  onChange={(e) => setCode(e.target.value)}
+                  required
+                  maxLength="6"
+                  placeholder="Enter 6-digit code"
+                  disabled={loading}
+                />
+              </div>
+              
+              <button 
+                className="btn btn-primary" 
+                type="submit"
+                disabled={loading}
+              >
+                {loading ? "Verifying..." : "Verify"}
               </button>
 
-              {}
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={handleResendCode}
+                disabled={loading}
+                style={{ marginLeft: "10px" }}
+              >
+                Resend Code
+              </button>
+
               <button
                 className="about-btn"
                 onClick={() => setStep(1)}
@@ -218,8 +299,9 @@ const Register = () => {
                   marginTop: "20px",
                   marginLeft: "10px",
                 }}
+                disabled={loading}
               >
-                ← Back
+                ← Back to Form
               </button>
             </form>
           )}

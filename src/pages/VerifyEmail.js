@@ -1,6 +1,7 @@
+// src/pages/VerifyEmail.js - FIXED VERSION
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { verifyEmail } from "../api/auth"; // we’ll add this function in api/auth.js
+import { verifyEmail } from "../api/auth";
 import "./styles.css";
 
 export default function VerifyEmail() {
@@ -11,16 +12,29 @@ export default function VerifyEmail() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    if (!email || !code) {
+      alert("⚠️ Please enter both email and verification code");
+      return;
+    }
+    
     setLoading(true);
 
-    const res = await verifyEmail({ email, code });
-    setLoading(false);
-
-    if (res.error) {
-      alert("❌ " + res.error);
-    } else {
-      alert("✅ Email verified successfully! You can now login.");
-      navigate("/login");
+    try {
+      const result = await verifyEmail({ email, code });
+      
+      if (result.error) {
+        alert("❌ " + result.error);
+      } else if (result.success || result.verified) { // ✅ Check for BOTH possible responses
+        alert("✅ " + (result.message || "Email verified successfully!"));
+        navigate("/login");
+      } else {
+        alert("❌ Unexpected response from server");
+      }
+    } catch (err) {
+      alert("❌ Verification failed: " + err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -39,6 +53,7 @@ export default function VerifyEmail() {
                 value={email}
                 required
                 onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter the email you registered with"
               />
             </div>
 
@@ -49,6 +64,8 @@ export default function VerifyEmail() {
                 value={code}
                 required
                 onChange={(e) => setCode(e.target.value)}
+                placeholder="Enter 6-digit code"
+                maxLength="6"
               />
             </div>
 

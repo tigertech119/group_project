@@ -1,23 +1,52 @@
 // src/api/auth.js
 import API_BASE from "./config";
 
-// Helper to handle responses
+// ==========================
+// ENHANCED RESPONSE HANDLER
+// ==========================
 async function handleResponse(res) {
-  let data;
   try {
-    data = await res.json();
-  } catch {
-    return { error: "Invalid server response" };
+    const text = await res.text();
+    let data;
+    
+    try {
+      data = text ? JSON.parse(text) : {};
+    } catch (parseError) {
+      // Handle non-JSON responses (HTML errors, etc.)
+      return { 
+        error: `Invalid server response (status ${res.status}): ${text.slice(0, 100)}...` 
+      };
+    }
+    
+    if (!res.ok) {
+      return { 
+        error: data.error || data.message || `Request failed with status ${res.status}` 
+      };
+    }
+    
+    return data;
+  } catch (error) {
+    return { error: "Failed to process server response: " + error.message };
   }
-  if (!res.ok) return { error: data.error || "Request failed" };
-  return data;
+}
+
+// ==========================
+// NETWORK ERROR WRAPPER
+// ==========================
+async function withNetworkErrorHandling(fetchCall) {
+  try {
+    return await fetchCall();
+  } catch (err) {
+    console.error("Network error:", err);
+    return { error: "Network error: " + err.message };
+  }
 }
 
 // ----------------------
 // Register new user
 // ----------------------
 export async function registerUser(data) {
-  try {
+  return withNetworkErrorHandling(async () => {
     const res = await fetch(`${API_BASE}/api/auth/register`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -25,16 +54,14 @@ export async function registerUser(data) {
       body: JSON.stringify(data),
     });
     return await handleResponse(res);
-  } catch (err) {
-    return { error: "Network error: " + err.message };
-  }
+  });
 }
 
 // ----------------------
 // Login
 // ----------------------
 export async function loginUser(data) {
-  try {
+  return withNetworkErrorHandling(async () => {
     const res = await fetch(`${API_BASE}/api/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -42,16 +69,14 @@ export async function loginUser(data) {
       body: JSON.stringify(data),
     });
     return await handleResponse(res);
-  } catch (err) {
-    return { error: "Network error: " + err.message };
-  }
+  });
 }
 
 // ----------------------
 // Apply for Job
 // ----------------------
 export async function applyJob(data) {
-  try {
+  return withNetworkErrorHandling(async () => {
     const res = await fetch(`${API_BASE}/api/auth/apply-job`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -59,81 +84,69 @@ export async function applyJob(data) {
       body: JSON.stringify(data),
     });
     return await handleResponse(res);
-  } catch (err) {
-    return { error: "Network error: " + err.message };
-  }
+  });
 }
 
 // ----------------------
 // Get logged-in user
 // ----------------------
-// src/api/auth.js
 export async function getMe() {
-  try {
+  return withNetworkErrorHandling(async () => {
     const res = await fetch(`${API_BASE}/api/auth/me`, {
-      credentials: "include", // ✅ send cookies (JWT token)
+      credentials: "include",
     });
-    return await handleResponse(res); // ✅ backend always returns { user, userType }
-  } catch (err) {
-    return { error: "Network error: " + err.message };
-  }
+    return await handleResponse(res);
+  });
 }
-
 
 // ----------------------
 // Logout
 // ----------------------
 export async function logoutUser() {
-  try {
+  return withNetworkErrorHandling(async () => {
     const res = await fetch(`${API_BASE}/api/auth/logout`, {
       method: "POST",
       credentials: "include",
     });
     return await handleResponse(res);
-  } catch (err) {
-    return { error: "Network error: " + err.message };
-  }
+  });
 }
 
 // ----------------------
 // Reset password
 // ----------------------
 export async function resetPassword({ email, code, newPassword }) {
-  try {
-    const res = await fetch(`${API_BASE}/api/auth/reset-password`, {  // ✅ use API_BASE
+  return withNetworkErrorHandling(async () => {
+    const res = await fetch(`${API_BASE}/api/auth/reset-password`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
       body: JSON.stringify({ email, code, newPassword }),
     });
     return await handleResponse(res);
-  } catch (err) {
-    return { error: "Network error: " + err.message };
-  }
+  });
 }
 
 // ----------------------
 // Forgot password
 // ----------------------
 export async function forgotPassword(email) {
-  try {
-    const res = await fetch(`${API_BASE}/api/auth/forgot-password`, {  // ✅ use API_BASE
+  return withNetworkErrorHandling(async () => {
+    const res = await fetch(`${API_BASE}/api/auth/forgot-password`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
       body: JSON.stringify({ email }),
     });
     return await handleResponse(res);
-  } catch (err) {
-    return { error: "Network error: " + err.message };
-  }
+  });
 }
 
 // ----------------------
-// Verify Email
+// Verify Email (KEEPING YOUR SUPERIOR VERSION)
 // ----------------------
 export async function verifyEmail(data) {
-  try {
+  return withNetworkErrorHandling(async () => {
     const res = await fetch(`${API_BASE}/api/auth/verify-email`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -141,25 +154,47 @@ export async function verifyEmail(data) {
       body: JSON.stringify(data),
     });
 
-    // ✅ Always read text first
+    // ✅ Your superior text-first approach
     const text = await res.text();
 
     let result;
     try {
-      result = JSON.parse(text); // try parse JSON
+      result = JSON.parse(text);
     } catch {
-      return { error: `Invalid server response (status ${res.status}): ${text.slice(0, 50)}` };
+      return { error: `Invalid server response (status ${res.status}): ${text.slice(0, 100)}...` };
     }
 
     if (!res.ok) {
-      return { error: result.error || `Verification failed (status ${res.status})` };
+      return { error: result.error || result.message || `Verification failed (status ${res.status})` };
     }
 
-    return result; // ✅ { message: "..."} from backend
-  } catch (err) {
-    console.error("❌ Network error in verifyEmail:", err);
-    return { error: "Network error: " + err.message };
-  }
+    return result;
+  });
 }
 
+// ----------------------
+// Get Applicants (Admin) - ADDED FOR COMPLETENESS
+// ----------------------
+export async function getApplicants() {
+  return withNetworkErrorHandling(async () => {
+    const res = await fetch(`${API_BASE}/api/auth/applicants`, {
+      credentials: "include",
+    });
+    return await handleResponse(res);
+  });
+}
 
+// ----------------------
+// Approve/Reject Applicant (Admin) - ADDED FOR COMPLETENESS
+// ----------------------
+export async function approveApplicant({ applicantId, status }) {
+  return withNetworkErrorHandling(async () => {
+    const res = await fetch(`${API_BASE}/api/auth/approve-applicant`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ applicantId, status }),
+    });
+    return await handleResponse(res);
+  });
+}

@@ -1,9 +1,9 @@
 const mongoose = require("mongoose");
 
 const itWorkerSchema = new mongoose.Schema({
-  email: { type: String, required: true, unique: true },
+  email: { type: String, required: true, unique: true, lowercase: true, trim: true },
   passwordHash: { type: String, required: true },
-  role: { type: String, default: "itworker" }, // 👈 added
+  role: { type: String, default: "itworker" },
   profile: {
     fullName: String,
     phone: String,
@@ -14,8 +14,12 @@ const itWorkerSchema = new mongoose.Schema({
   department: { type: String, default: "Information Technology" },
   systemsAccess: [String],
   isAvailable: { type: Boolean, default: true },
+  // ✅ for consistent login checks
+  isVerified: { type: Boolean, default: false },
 }, { timestamps: true });
+
 module.exports = mongoose.model("ITWorker", itWorkerSchema);
+
 
 /*
 const mongoose = require("mongoose");
