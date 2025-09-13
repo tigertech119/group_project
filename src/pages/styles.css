@@ -383,3 +383,12 @@
   font-size: 0.95em;
   color: #444;
 }
+
+.profile-box {
+  text-align: left;   /* 👈 ensures left alignment */
+  margin-top: 15px;
+  padding: 15px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background: #f9f9f9;
+}
