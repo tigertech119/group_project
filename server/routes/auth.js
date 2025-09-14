@@ -410,54 +410,6 @@ router.post("/forgot-password", async (req, res) => {
   }
 });
 
-// ==========================
-// RESET PASSWORD
-// ==========================
-router.post("/reset-password", async (req, res) => {
-  try {
-    const { email, code, newPassword } = req.body;
-    if (!email || !code || !newPassword) {
-      return res.status(400).json({ error: "Email, code and new password are required" });
-    }
-
-    const emailLower = email.trim().toLowerCase();
-
-    // Find user in all collections
-    const results = await Promise.all([
-      Applicant.findOne({ email: emailLower }),
-      Patient.findOne({ email: emailLower }),
-      Doctor.findOne({ email: emailLower }),
-      Nurse.findOne({ email: emailLower }),
-      ITWorker.findOne({ email: emailLower }),
-      Wardboy.findOne({ email: emailLower }),
-      User.findOne({ email: emailLower })
-    ]);
-
-    const user = results.find(Boolean);
-    if (!user) return res.status(404).json({ error: "User not found" });
-
-    // validate code
-    if (!user.resetCode || user.resetCode !== code) {
-      return res.status(400).json({ error: "Invalid or expired reset code" });
-    }
-    if (user.resetCodeExpires && Date.now() > user.resetCodeExpires) {
-      return res.status(400).json({ error: "Reset code expired" });
-    }
-
-    // update password
-    const passwordHash = await bcrypt.hash(newPassword, 10);
-    user.passwordHash = passwordHash;
-    user.resetCode = undefined;
-    user.resetCodeExpires = undefined;
-    await user.save();
-
-    return res.json({ message: "Password reset successful" });
-  } catch (err) {
-    console.error("[RESET PASSWORD ERROR]", err);
-    return res.status(500).json({ error: "Server error while resetting password" });
-  }
-});
-
 
 
 // ==========================
@@ -469,12 +421,11 @@ router.post("/reset-password", async (req, res) => {
 
     console.log("RESET PASSWORD ROUTE HIT", req.body); // debug
 
-    // basic required fields
     if (!email || !code || !newPassword) {
       return res.status(400).json({ error: "Email, code and new password are required" });
     }
 
-    // ✅ Validate length
+    // ✅ 1. Enforce minimum password length
     if (newPassword.length < 6) {
       return res.status(400).json({ error: "Password must be at least 6 characters long" });
     }
@@ -494,6 +445,7 @@ router.post("/reset-password", async (req, res) => {
     const user = results.find(Boolean);
     if (!user) return res.status(404).json({ error: "User not found" });
 
+    // check reset code validity
     if (!user.resetCode || user.resetCode !== code) {
       return res.status(400).json({ error: "Invalid or expired reset code" });
     }
@@ -501,13 +453,13 @@ router.post("/reset-password", async (req, res) => {
       return res.status(400).json({ error: "Reset code expired" });
     }
 
-    // ✅ Check if same as old password
+    // ✅ 2. Check if new password is same as old
     const isSame = await bcrypt.compare(newPassword, user.passwordHash);
     if (isSame) {
       return res.status(400).json({ error: "New password must be different from the old password" });
     }
 
-    // Only now hash & save
+    // ✅ 3. Save the new password (only if valid and different)
     user.passwordHash = await bcrypt.hash(newPassword, 10);
     user.resetCode = undefined;
     user.resetCodeExpires = undefined;
@@ -519,6 +471,7 @@ router.post("/reset-password", async (req, res) => {
     return res.status(500).json({ error: "Server error while resetting password" });
   }
 });
+
 
 
 

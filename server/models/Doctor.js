@@ -18,11 +18,15 @@ const doctorSchema = new mongoose.Schema({
     timeSlots: [String],
   },
   isAvailable: { type: Boolean, default: true },
-  // ✅ for consistent login checks
   isVerified: { type: Boolean, default: false },
+
+  // 🔑 add reset support
+  resetCode: String,
+  resetCodeExpires: Date,
 }, { timestamps: true });
 
 module.exports = mongoose.model("Doctor", doctorSchema);
+
 
 /*
 const mongoose = require("mongoose");
