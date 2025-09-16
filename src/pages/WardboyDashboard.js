@@ -38,6 +38,10 @@ export default function WardboyDashboard({ user }) {
           <div className="actions">
             <button className="btn btn-primary">🏥 Assist Doctors</button>
             <button className="btn btn-tertiary">🧽 Maintain Wards</button>
+            
+             <button className="btn btn-tertiary" onClick={() => navigate("/account-settings")}>
+                 ⚙️ Account Settings
+             </button>
           </div>
         </div>
       </main>

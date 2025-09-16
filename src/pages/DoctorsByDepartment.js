@@ -81,16 +81,28 @@ export default function DoctorsByDepartment() {
             ))}
           </div>
 
-          <button
+           <button
+             className="about-btn"
+             onClick={() => navigate(-1)} // Go back one page in history
+             style={{ background: "linear-gradient(45deg, #6c757d, #5a6268)", marginTop: "20px" }}
+           >
+             Back
+            </button>
+          
+
+        </div>
+      </main>
+    </div>
+  );
+}
+/*
+/// previous button code 
+<button
             className="about-btn"
             onClick={() => navigate("/departments")}
             style={{ background: "linear-gradient(45deg, #6c757d, #5a6268)", marginTop: "20px" }}
           >
             ← Back
           </button>
-        </div>
-      </main>
-    </div>
-  );
-}
+*/
 

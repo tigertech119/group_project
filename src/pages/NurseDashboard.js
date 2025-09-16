@@ -36,6 +36,68 @@ export default function NurseDashboard({ user }) {
             <p><b>Department:</b> {user.profile?.department || "N/A"}</p>
           </div>
 
+          {/* existing action buttons */}
+          <div className="actions">
+            <button className="btn btn-primary">📋 View Patients</button>
+            <button className="btn btn-tertiary">💊 Manage Medicines</button>
+          </div>
+
+          {/* NEW: Account Settings button (placed BELOW existing actions) */}
+          <div className="actions" style={{ marginTop: 8 }}>
+            <button
+              className="btn btn-tertiary"
+              onClick={() => navigate("/account-settings")}
+            >
+              ⚙️ Account Settings
+            </button>
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+}
+
+
+
+/*  commented on 16.09.25
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import "./styles.css";
+
+export default function NurseDashboard({ user }) {
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await fetch("http://localhost:5000/api/auth/logout", {
+      method: "POST",
+      credentials: "include",
+    });
+    alert("✅ Logged out successfully!");
+    navigate("/");
+  };
+
+  if (!user) return <p>Loading...</p>;
+
+  return (
+    <div className="home-container">
+      <header className="header">
+        <div className="logo">👩‍⚕️ Nurse Dashboard</div>
+        <button className="btn btn-tertiary" onClick={handleLogout}>
+          Logout
+        </button>
+      </header>
+
+      <main className="main-content">
+        <div className="content-box">
+          <h1 className="title">Welcome, {user.profile?.fullName || "Nurse"} 👩‍⚕️</h1>
+
+          <div className="profile-box">
+            <p><b>Email:</b> {user.email}</p>
+            <p><b>Phone:</b> {user.profile?.phone || "N/A"}</p>
+            <p><b>Gender:</b> {user.profile?.gender || "N/A"}</p>
+            <p><b>Department:</b> {user.profile?.department || "N/A"}</p>
+          </div>
+
           <div className="actions">
             <button className="btn btn-primary">📋 View Patients</button>
             <button className="btn btn-tertiary">💊 Manage Medicines</button>
@@ -45,8 +107,13 @@ export default function NurseDashboard({ user }) {
     </div>
   );
 }
+*/
 
-/*
+
+
+/*  --------------------------------------
+----------------------------------------------
+-----------------------------------------------
 import React, { useEffect, useState } from "react";
 import { getMe } from "../api/auth";
 import { useNavigate } from "react-router-dom";
