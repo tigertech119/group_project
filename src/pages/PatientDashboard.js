@@ -51,12 +51,7 @@ export default function PatientDashboard({ user }) {
 
   return (
     <div className="home-container">
-      <header className="header">
-        <div className="logo">🏥 Patient Dashboard</div>
-        <button className="btn btn-tertiary" onClick={handleLogout}>
-          Logout
-        </button>
-      </header>
+
 
       <main className="main-content">
         <div className="content-box">

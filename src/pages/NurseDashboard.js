@@ -18,12 +18,7 @@ export default function NurseDashboard({ user }) {
 
   return (
     <div className="home-container">
-      <header className="header">
-        <div className="logo">👩‍⚕️ Nurse Dashboard</div>
-        <button className="btn btn-tertiary" onClick={handleLogout}>
-          Logout
-        </button>
-      </header>
+
 
       <main className="main-content">
         <div className="content-box">

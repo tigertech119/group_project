@@ -15,12 +15,7 @@ const HomeLoggedIn = () => {
 
   return (
     <div className="home-container">
-      {/* Header with Logout Button */}
-      <header className="header" style={{justifyContent: 'flex-end', padding: '15px 30px'}}>
-        <button className="btn btn-tertiary" onClick={handleLogout}>
-          Logout
-        </button>
-      </header>
+
 
       {/* Main Content - Same as original home page but with different buttons */}
       <main className="main-content">

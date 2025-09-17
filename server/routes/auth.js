@@ -368,10 +368,13 @@ router.post("/logout", (_req, res) => {
   res.clearCookie("token", {
     httpOnly: true,
     sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-    secure: process.env.NODE_ENV === "production"
+    secure: process.env.NODE_ENV === "production",
+    path: "/",               // ✅ ensures deletion across all routes
+    expires: new Date(0),    // ✅ force immediate expiration
   });
   return res.json({ ok: true });
 });
+
 
 // ==========================
 // FORGOT PASSWORD
