@@ -3,7 +3,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Home from './pages/home';
-import HomeLoggedIn from './pages/HomeLoggedIn'; // Import the new component
+import HomeLoggedIn from './pages/HomeLoggedIn';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import DashboardRouter from './components/DashboardRouter';
@@ -14,38 +14,45 @@ import ViewReports from './pages/ViewReports';
 import About from './pages/About';
 import Prescriptions from './pages/Prescriptions';
 import MyRecords from './pages/MyRecords';
-import './App.css';
 import AccountSettings from './pages/AccountSettings';
-import Footer from './components/Footer';  // ✅ already imported
+import VerifyEmail from './pages/VerifyEmail';       // ✅ added
+import ResetPassword from './pages/ResetPassword';   // ✅ added
+import './App.css';
 
 function App() {
   return (
     <Router>
       <div className="App">
         <Navbar />
-        {/* ✅ added wrapper so we can place Footer under all routes */}
-        <div className="app-main">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/home-loggedin" element={<HomeLoggedIn />} /> {/* New route */}
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/dashboard" element={<DashboardRouter />} />
-            <Route path="/departments" element={<Department />} />
-            <Route path="/doctors/:department" element={<DoctorsByDepartment />} />
-            <Route path="/apply-jobs" element={<ApplyJobs />} />
-            <Route path="/view-reports" element={<ViewReports />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/prescriptions" element={<Prescriptions />} />
-            <Route path="/my-records" element={<MyRecords />} />
-            <Route path="/account-settings" element={<AccountSettings />} />
-          </Routes>
-        </div>
-        {/* ✅ footer renders on every page */}
-        <Footer />
+        <Routes>
+          {/* public */}
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/verify-email" element={<VerifyEmail />} />       {/* ✅ added */}
+          <Route path="/reset-password" element={<ResetPassword />} />   {/* ✅ added */}
+
+          {/* logged-in views */}
+          <Route path="/home-loggedin" element={<HomeLoggedIn />} />
+          <Route path="/dashboard" element={<DashboardRouter />} />
+          <Route path="/account-settings" element={<AccountSettings />} />
+
+          {/* other pages */}
+          <Route path="/departments" element={<Department />} />
+          <Route path="/doctors/:department" element={<DoctorsByDepartment />} />
+          <Route path="/apply-jobs" element={<ApplyJobs />} />
+          <Route path="/view-reports" element={<ViewReports />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/prescriptions" element={<Prescriptions />} />
+          <Route path="/my-records" element={<MyRecords />} />
+
+          {/* 404 fallback */}
+          <Route path="*" element={<div style={{ padding: 24 }}>Not Found</div>} />
+        </Routes>
       </div>
     </Router>
   );
 }
 
 export default App;
+
