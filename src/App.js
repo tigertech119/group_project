@@ -15,8 +15,9 @@ import About from './pages/About';
 import Prescriptions from './pages/Prescriptions';
 import MyRecords from './pages/MyRecords';
 import AccountSettings from './pages/AccountSettings';
-import VerifyEmail from './pages/VerifyEmail';       // ✅ added
-import ResetPassword from './pages/ResetPassword';   // ✅ added
+import VerifyEmail from './pages/VerifyEmail';
+import ResetPassword from './pages/ResetPassword';
+import Footer from './components/Footer';             // ✅ added
 import './App.css';
 
 function App() {
@@ -24,31 +25,35 @@ function App() {
     <Router>
       <div className="App">
         <Navbar />
-        <Routes>
-          {/* public */}
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/verify-email" element={<VerifyEmail />} />       {/* ✅ added */}
-          <Route path="/reset-password" element={<ResetPassword />} />   {/* ✅ added */}
+        {/* ✅ wrap routes so we can place footer under all pages */}
+        <div className="app-main">
+          <Routes>
+            {/* public */}
+            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/verify-email" element={<VerifyEmail />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
 
-          {/* logged-in views */}
-          <Route path="/home-loggedin" element={<HomeLoggedIn />} />
-          <Route path="/dashboard" element={<DashboardRouter />} />
-          <Route path="/account-settings" element={<AccountSettings />} />
+            {/* logged-in views */}
+            <Route path="/home-loggedin" element={<HomeLoggedIn />} />
+            <Route path="/dashboard" element={<DashboardRouter />} />
+            <Route path="/account-settings" element={<AccountSettings />} />
 
-          {/* other pages */}
-          <Route path="/departments" element={<Department />} />
-          <Route path="/doctors/:department" element={<DoctorsByDepartment />} />
-          <Route path="/apply-jobs" element={<ApplyJobs />} />
-          <Route path="/view-reports" element={<ViewReports />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/prescriptions" element={<Prescriptions />} />
-          <Route path="/my-records" element={<MyRecords />} />
+            {/* other pages */}
+            <Route path="/departments" element={<Department />} />
+            <Route path="/doctors/:department" element={<DoctorsByDepartment />} />
+            <Route path="/apply-jobs" element={<ApplyJobs />} />
+            <Route path="/view-reports" element={<ViewReports />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/prescriptions" element={<Prescriptions />} />
+            <Route path="/my-records" element={<MyRecords />} />
 
-          {/* 404 fallback */}
-          <Route path="*" element={<div style={{ padding: 24 }}>Not Found</div>} />
-        </Routes>
+            {/* 404 fallback */}
+            <Route path="*" element={<div style={{ padding: 24 }}>Not Found</div>} />
+          </Routes>
+        </div>
+        <Footer />                                      {/* ✅ added */}
       </div>
     </Router>
   );
