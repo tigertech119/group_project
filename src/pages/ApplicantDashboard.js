@@ -13,12 +13,7 @@ export default function ApplicantDashboard({ user }) {
   return (
     <div className="home-container">
       {/* Header */}
-      <header className="header">
-        <div className="logo">📋 Applicant Dashboard</div>
-        <button className="btn btn-tertiary" onClick={handleLogout}>
-          Logout
-        </button>
-      </header>
+
 
       {/* Main Content */}
       <main className="main-content">
