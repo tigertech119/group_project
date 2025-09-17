@@ -37,7 +37,7 @@ async function fixAdmin() {
     const Doctor = require('./models/Doctor');
 
     await Doctor.updateOne(
-      { email: "dummydoc8@gmail.com" },
+      { email: " doctor8@gmail.com" },
       { 
         $set: { isVerified: true },     // ✅ mark verified
         $unset: { 

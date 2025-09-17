@@ -57,14 +57,14 @@ async function createAdmin() {
     const passwordHash = await bcrypt.hash('12345678', 10);
 
     await Doctor.create({
-      email: 'dummydoc8@gmail.com',
+      email: ' doctor8@gmail.com',
       passwordHash,
       role: 'doctor',
       isVerified: true,                 // ✅ allow login without OTP
       profile: {
-        fullName: 'Dr Ahbab Hassan   ',
-        phone: '123-ADMIN-456',
-        department: 'Orthopedics'
+        fullName: 'Dr Ahbab Hassan khan   ',
+        phone: '0215487697',
+        department: 'Pediatrics'
       }
     });
 
