@@ -1,11 +1,31 @@
 // src/api/appointments.js
 import API_BASE from "./config";
 
+// 🔹 NEW: friendly message for unauthenticated users
+const AUTH_MSG = "Please login first to book an appointment.";
+
 // Generic response helper
 async function handleResponse(res) {
   let data;
-  try { data = await res.json(); } catch { return { error: "Invalid server response" }; }
-  if (!res.ok) return { error: data.error || "Request failed" };
+  try {
+    data = await res.json();
+  } catch {
+    // If server returned nothing but it’s an auth error, still surface a clean message
+    if (res && (res.status === 401 || res.status === 403)) {
+      return { error: AUTH_MSG, authError: true };
+    }
+    return { error: "Invalid server response" };
+  }
+
+  // 🔹 NEW: translate 401/403 to a clear login message + flag
+  if (res && (res.status === 401 || res.status === 403)) {
+    return {
+      error: data?.error || data?.message || AUTH_MSG,
+      authError: true,
+    };
+  }
+
+  if (!res.ok) return { error: data?.error || "Request failed" };
   return data;
 }
 
@@ -39,23 +59,6 @@ export async function getPendingAppointments() {
 // ----------------------
 // Approve / Reject / Reschedule (IT Worker) — supports optional fields
 // ----------------------
-// src/api/appointment.js
-/*
-export async function updateAppointmentStatus(appointmentId, status, extra = {}) {
-  try {
-    const res = await fetch(`${API_BASE}/api/appointments/${appointmentId}/update`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({ status, ...extra }),
-    });
-    return await handleResponse(res);
-  } catch (err) {
-    return { error: "Network error: " + err.message };
-  }
-}
-*/
-// src/api/appointment.js
 export async function updateAppointmentStatus(appointmentId, status, extra = {}) {
   try {
     const res = await fetch(`${API_BASE}/api/appointments/${appointmentId}/update`, {
@@ -69,7 +72,6 @@ export async function updateAppointmentStatus(appointmentId, status, extra = {})
     return { error: "Network error: " + err.message };
   }
 }
-
 
 // Patient view
 export async function getPatientAppointments(patientId) {
@@ -94,4 +96,3 @@ export async function getDoctorAppointments(doctorId) {
     return { error: "Network error: " + err.message };
   }
 }
-

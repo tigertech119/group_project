@@ -1,6 +1,6 @@
 // src/pages/DoctorsByDepartment.js
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom"; // ✅ added useLocation
 import "./styles.css";
 import { getMe } from "../api/auth";
 import { requestAppointment } from "../api/appointment.js";
@@ -8,19 +8,25 @@ import { requestAppointment } from "../api/appointment.js";
 export default function DoctorsByDepartment() {
   const { department } = useParams();
   const navigate = useNavigate();
+  const location = useLocation(); // ✅ re-check user when route changes
 
   const [doctors, setDoctors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
 
-  // Check logged-in user
+  // ✅ Check logged-in user on load & when route changes
   useEffect(() => {
     async function fetchUser() {
-      const res = await getMe();
-      if (res.user) setUser(res.user);
+      try {
+        const res = await getMe();
+        if (res.user) setUser(res.user);
+        else setUser(null);
+      } catch {
+        setUser(null);
+      }
     }
     fetchUser();
-  }, []);
+  }, [location.key]); // runs again after logout redirect
 
   // Fetch doctors by department
   useEffect(() => {
@@ -38,19 +44,28 @@ export default function DoctorsByDepartment() {
     fetchDocs();
   }, [department]);
 
-  // Book appointment (no requested date/time; IT worker will set schedule)
+  // Book appointment
   async function handleBook(doctorId) {
-    if (!user) {
-      alert("⚠️ Please login first to book an appointment");
+    if (!user || user.role !== "patient") {
+      alert("⚠️ Please login as a patient to book an appointment");
+      navigate("/login");
       return;
     }
 
     const res = await requestAppointment(user._id, doctorId, department);
+
+    if (res.authError) {
+      alert(res.error || "⚠️ Please login first to book an appointment");
+      navigate("/login");
+      return;
+    }
+
     if (res.error) {
       alert("❌ " + res.error);
-    } else {
-      alert("✅ Request sent. IT worker will schedule your time.");
+      return;
     }
+
+    alert("✅ Request sent. IT worker will schedule your time.");
   }
 
   return (
@@ -71,38 +86,33 @@ export default function DoctorsByDepartment() {
                 <h2>{doc.profile?.fullName || "Unnamed Doctor"}</h2>
                 <p><b>Phone:</b> {doc.profile?.phone || "N/A"}</p>
                 <p><b>Gender:</b> {doc.profile?.gender || "N/A"}</p>
-                <button
-                  className="btn btn-primary"
-                  onClick={() => handleBook(doc._id)}
-                >
-                  📅 Book Appointment
-                </button>
+
+                {/* ✅ Conditional rendering */}
+                {user?.role === "patient" ? (
+                  <button
+                    className="btn btn-primary"
+                    onClick={() => handleBook(doc._id)}
+                  >
+                    📅 Book Appointment
+                  </button>
+                ) : (
+                  <p className="subtitle" style={{ color: "#888", marginTop: "8px" }}>
+                    ⚠️ Login as a patient to book an appointment
+                  </p>
+                )}
               </div>
             ))}
           </div>
 
-           <button
-             className="about-btn"
-             onClick={() => navigate(-1)} // Go back one page in history
-             style={{ background: "linear-gradient(45deg, #6c757d, #5a6268)", marginTop: "20px" }}
-           >
-             Back
-            </button>
-          
-
+          <button
+            className="about-btn"
+            onClick={() => navigate(-1)}
+            style={{ background: "linear-gradient(45deg, #6c757d, #5a6268)", marginTop: "20px" }}
+          >
+            Back
+          </button>
         </div>
       </main>
     </div>
   );
 }
-/*
-/// previous button code 
-<button
-            className="about-btn"
-            onClick={() => navigate("/departments")}
-            style={{ background: "linear-gradient(45deg, #6c757d, #5a6268)", marginTop: "20px" }}
-          >
-            ← Back
-          </button>
-*/
-

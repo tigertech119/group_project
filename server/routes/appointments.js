@@ -1,22 +1,39 @@
-
 // server/routes/appointments.js
 const express = require("express");
+// NOTE: keep the correct relative path to your model
 const Appointment = require("../models/Appointment");
+
+// 🔒 ADD: requireAuth middleware
+const requireAuth = require("../middleware/requireAuth");
 
 const router = express.Router();
 
 /**
  * Patient creates a request (no date/time here)
+ * 🔒 ADD: require login + enforce "patient" role
+ * 🔒 ADD: use req.userId from the verified cookie (ignore spoofed body ids)
  */
-router.post("/request", async (req, res) => {
+router.post("/request", requireAuth, async (req, res) => {
   try {
+    // must be a patient to create a request
+    if (req.userType !== "patient") {
+      return res.status(403).json({ error: "Only patients can request appointments" });
+    }
+
     const { patientId, doctorId, department } = req.body;
-    if (!patientId || !doctorId || !department) {
+
+    // basic field checks (doctor & department still required)
+    if (!doctorId || !department) {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
+    // if someone tries to spoof a different patientId in body, block it
+    if (patientId && String(patientId) !== String(req.userId)) {
+      return res.status(403).json({ error: "You cannot create requests for another user" });
+    }
+
     const appt = await Appointment.create({
-      patientId,
+      patientId: req.userId,     // ✅ take from verified cookie
       doctorId,
       department,
       status: "pending",
@@ -124,9 +141,14 @@ router.post("/:id/update", async (req, res) => {
 
 /**
  * Appointments for a patient
+ * 🔒 ADD: if caller is a patient, they may only read their own appointments
  */
-router.get("/patient/:patientId", async (req, res) => {
+router.get("/patient/:patientId", requireAuth, async (req, res) => {
   try {
+    if (req.userType === "patient" && String(req.userId) !== String(req.params.patientId)) {
+      return res.status(403).json({ error: "Forbidden" });
+    }
+
     const appts = await Appointment.find({ patientId: req.params.patientId })
       .populate("doctorId", "profile.fullName email")
       .sort({ createdAt: -1 });
@@ -147,7 +169,6 @@ router.get("/patient/:patientId", async (req, res) => {
   }
 });
 
-// Add to server/routes/appointments.js
 /**
  * Get appointments for doctor with pagination
  */
@@ -158,18 +179,18 @@ router.get("/doctor/:doctorId/paginated", async (req, res) => {
     const limit = parseInt(req.query.limit) || 5;
     const skip = (page - 1) * limit;
 
-    const appointments = await Appointment.find({ 
-      doctorId, 
-      status: { $in: ["approved", "rescheduled"] } 
+    const appointments = await Appointment.find({
+      doctorId,
+      status: { $in: ["approved", "rescheduled"] }
     })
       .populate("patientId", "profile.fullName email")
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);
 
-    const total = await Appointment.countDocuments({ 
-      doctorId, 
-      status: { $in: ["approved", "rescheduled"] } 
+    const total = await Appointment.countDocuments({
+      doctorId,
+      status: { $in: ["approved", "rescheduled"] }
     });
 
     const formatted = appointments.map(a => ({
@@ -198,12 +219,8 @@ router.get("/doctor/:doctorId/paginated", async (req, res) => {
   }
 });
 
-
-
-
 /**
- * Appointments for a doctor
- *  – includes patientId so the doctor can create a visit note
+ * Appointments for a doctor – includes patientId so the doctor can create a visit note
  */
 router.get("/doctor/:doctorId", async (req, res) => {
   try {
@@ -217,7 +234,6 @@ router.get("/doctor/:doctorId", async (req, res) => {
       status: a.status,
       scheduledDate: a.scheduledDate || "",
       scheduledTime: a.scheduledTime || "",
-      // >>> include raw patientId for visit-notes
       patientId: a.patientId?._id?.toString() || null,
       patientName: a.patientId?.profile?.fullName || a.patientId?.email || "Unknown",
     }));
@@ -230,4 +246,3 @@ router.get("/doctor/:doctorId", async (req, res) => {
 });
 
 module.exports = router;
-
