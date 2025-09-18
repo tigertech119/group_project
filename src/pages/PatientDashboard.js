@@ -58,10 +58,7 @@ export default function PatientDashboard({ user }) {
 
   return (
     <div className="home-container">
-      <header className="header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
-        <div className="logo">🏥 Patient Dashboard</div>
-        <button className="btn btn-tertiary btn--sm" onClick={handleLogout}>Logout</button>
-      </header>
+
 
 
       <main className="main-content">
