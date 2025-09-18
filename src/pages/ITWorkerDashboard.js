@@ -212,12 +212,6 @@ export default function ITWorkerDashboard({ user }) {
   return (
     <div className="home-container">
       {/* Header */}
-      <header className="header">
-        <div className="logo">💻 IT Worker Dashboard</div>
-        <button className="btn btn-tertiary" onClick={handleLogout}>
-          Logout
-        </button>
-      </header>
 
       <main className="main-content">
         <div className="content-box">

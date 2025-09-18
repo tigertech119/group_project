@@ -71,13 +71,7 @@ export default function AdminDashboard() {
 
   return (
     <div className="home-container">
-      {/* Header with logout */}
-      <header className="header">
-        <div className="logo">⚙️ Admin Dashboard</div>
-        <button className="btn btn-tertiary" onClick={handleLogout}>
-          Logout
-        </button>
-      </header>
+
 
       <main className="main-content">
         <div className="content-box">
