@@ -47,7 +47,7 @@ const Home = () => {
           <div className="button-group">
             <button className="btn btn-primary" onClick={() => navigate('/login')}>Login</button>
             <button className="btn btn-secondary" onClick={() => navigate('/register')}>Register</button>
-            <button className="btn btn-primary" onClick={() => navigate('/departments')}>View Departments</button>
+            <button className="btn btn-primary" onClick={() => navigate('/departments/info')}>View Departments</button>
           </div>
 
           <div className="action-buttons">

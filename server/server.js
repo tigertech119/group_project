@@ -42,6 +42,7 @@ app.use("/api/prescriptions", prescriptions);
 app.use("/api/doctors", doctors);
 app.use("/api/records", records);
 //app.use("/api/records", recordsRoutes);
+app.use("/api/department-articles", require("./routes/departmentArticles"));
 
 // 🔑 IMPORTANT: make `/me` accessible at /api/auth/me
 app.use("/api/auth/me", meRoutes);

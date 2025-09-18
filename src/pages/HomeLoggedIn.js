@@ -27,7 +27,7 @@ const HomeLoggedIn = () => {
             <button className="btn btn-primary" onClick={() => navigate('/dashboard')}>
               Back to Dashboard
             </button>
-            <button className="btn btn-primary" onClick={() => navigate('/departments')}>
+            <button className="btn btn-primary" onClick={() => navigate('/departments/info')}>
               View Departments
             </button>
           </div>

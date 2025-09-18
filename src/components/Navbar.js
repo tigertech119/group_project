@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import "./Navbar.css";
-import { getMe, logoutUser } from "../api/auth";   // ✅ added logoutUser
+import { getMe, logoutUser } from "../api/auth";   
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -12,7 +12,7 @@ const Navbar = () => {
 
   useEffect(() => {
     checkAuthStatus();
-  }, [location.key]); // ✅ re-check on route change
+  }, [location.key]); 
 
   const checkAuthStatus = async () => {
     try {
@@ -32,16 +32,16 @@ const Navbar = () => {
   const handleHomeClick = (e) => {
     if (user) {
       e.preventDefault();
-      navigate("/home-loggedin"); // Redirect to logged-in home page
+      navigate("/home-loggedin");
     }
   };
 
-  // ✅ NEW: handle logout
+ 
   const handleLogout = async () => {
     try {
       await logoutUser();
-      setUser(null);         // clear user state
-      navigate("/");         // go back to public home
+      setUser(null);         
+      navigate("/");         
     } catch (err) {
       console.error("❌ Logout failed:", err);
     }
@@ -68,32 +68,20 @@ const Navbar = () => {
 
         {user ? (
           <>
-            {/* ✅ Show user info */}
+            {}
             <li>
               <span className="nav-link">
                 👤 {user.profile?.fullName || user.email}
               </span>
             </li>
-            {/* ✅ Logout button */}
+            {}
             <li>
-              <button
-                className="nav-link"
-                style={{
-                  background: "tomato",
-                  border: "none",
-                  color: "white",
-                  padding: "6px 12px",
-                  cursor: "pointer",
-                }}
-                onClick={handleLogout}
-              >
-                Logout
-              </button>
+              
             </li>
           </>
         ) : (
           <>
-            {/* ✅ If not logged in, show login/register */}
+            {}
           </>
         )}
       </ul>
